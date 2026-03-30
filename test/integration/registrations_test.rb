@@ -32,4 +32,30 @@ class RegistrationsTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_match "must use @dayspringlabs.com or @dayspring.tech", response.body
   end
+
+  test "sign-up attempts are rate limited" do
+    10.times do
+      post registration_path, params: {
+        user: {
+          email: "blocked@example.com",
+          password: "password123",
+          password_confirmation: "password123"
+        }
+      }
+
+      assert_response :unprocessable_content
+    end
+
+    post registration_path, params: {
+      user: {
+        email: "blocked@example.com",
+        password: "password123",
+        password_confirmation: "password123"
+      }
+    }
+
+    assert_redirected_to new_registration_path
+    follow_redirect!
+    assert_match "Too many sign-up attempts. Try again later.", response.body
+  end
 end

@@ -1,5 +1,10 @@
 class PasswordResetsController < ApplicationController
+  RATE_LIMIT_STORE = Rails.application.config.x.auth_rate_limit_store
+
   before_action :set_user_from_token, only: %i[edit update]
+  rate_limit to: 10, within: 3.minutes, store: RATE_LIMIT_STORE, only: :create, with: -> {
+    redirect_to new_password_reset_path, alert: "Too many password reset attempts. Try again later."
+  }
 
   def new
   end
@@ -16,6 +21,7 @@ class PasswordResetsController < ApplicationController
 
   def update
     if @user.update(password_reset_params)
+      terminate_session
       redirect_to new_session_path, notice: "Your password has been updated."
     else
       render :edit, status: :unprocessable_content

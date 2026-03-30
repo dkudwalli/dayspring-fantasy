@@ -51,4 +51,17 @@ class PasswordResetsTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_password_reset_path
   end
+
+  test "password reset requests are rate limited" do
+    10.times do
+      post password_resets_path, params: { email: "missing@dayspringlabs.com" }
+      assert_redirected_to new_session_path
+    end
+
+    post password_resets_path, params: { email: "missing@dayspringlabs.com" }
+
+    assert_redirected_to new_password_reset_path
+    follow_redirect!
+    assert_match "Too many password reset attempts. Try again later.", response.body
+  end
 end

@@ -12,7 +12,17 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    setup do
+      auth_rate_limit_store.clear if auth_rate_limit_store.respond_to?(:clear)
+    end
+
     # Add more helper methods to be used by all tests here...
+
+    private
+
+    def auth_rate_limit_store
+      Rails.application.config.x.auth_rate_limit_store
+    end
   end
 end
 
