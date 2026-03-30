@@ -1,24 +1,11 @@
 <section class="space-y-5 sm:space-y-6">
   <section class="page-surface-dark overflow-hidden p-5 sm:p-7">
-    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-      <div>
-        <p class="eyebrow text-amber-300">Match center</p>
-        <h1 class="mt-2 font-editorial text-3xl leading-tight sm:text-5xl"><%= @selected_date.strftime("%A, %-d %B %Y") %></h1>
-        <p class="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
-          Review today’s fixtures, save every open answer in one pass, and come back after results are published to track points.
-        </p>
-      </div>
-
-      <div class="grid gap-3 sm:grid-cols-2 lg:min-w-[18rem]">
-        <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Matches today</p>
-          <p class="mt-2 text-3xl font-semibold text-white"><%= @matches.count %></p>
-        </div>
-        <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Schedule page</p>
-          <p class="mt-2 text-3xl font-semibold text-white"><%= @total_schedule_pages.zero? ? 0 : @schedule_page %>/<%= @total_schedule_pages %></p>
-        </div>
-      </div>
+    <div>
+      <p class="eyebrow text-amber-300">Match center</p>
+      <h1 class="mt-2 font-editorial text-3xl leading-tight sm:text-5xl"><%= @selected_date.strftime("%A, %-d %B %Y") %></h1>
+      <p class="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
+        Review the fixture for the day, lock your answer before play starts, and return after results are published to track the table.
+      </p>
     </div>
   </section>
 
@@ -30,7 +17,7 @@
         <p class="mt-3 text-sm leading-6 text-slate-500">Choose another fixture day from the schedule navigator to jump across the season without leaving the page.</p>
       </section>
 
-      <%= render "metrics", selected_date: @selected_date, answered_questions_count: @answered_questions_count, daily_points: @daily_points, current_user_rank: @current_user_rank %>
+      <%= render "metrics", selected_date: @selected_date, current_user_rank: @current_user_rank %>
 
       <section class="page-surface p-5 sm:p-6">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

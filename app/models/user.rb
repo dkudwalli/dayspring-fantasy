@@ -25,13 +25,12 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true
   validate :email_domain_must_be_allowed
 
-  scope :non_admin, -> { where(admin: false) }
   scope :with_leaderboard_score, lambda {
     left_joins(predictions: :prediction_question)
       .select("users.*, #{LEADERBOARD_SCORE_SQL} AS leaderboard_score")
       .group("users.id")
   }
-  scope :leaderboard, -> { non_admin.with_leaderboard_score.order(Arel.sql("leaderboard_score DESC, users.email ASC")) }
+  scope :leaderboard, -> { with_leaderboard_score.order(Arel.sql("leaderboard_score DESC, users.email ASC")) }
 
   def score
     return self[:leaderboard_score].to_i if has_attribute?(:leaderboard_score)

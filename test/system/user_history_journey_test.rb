@@ -7,7 +7,7 @@ class UserHistoryJourneyTest < ApplicationSystemTestCase
     fill_in "Password", with: "password123"
     click_button "Log in"
 
-    assert_text "Questions saved"
+    assert_text "League rank"
     click_link "History"
 
     assert_text "Your picks timeline"

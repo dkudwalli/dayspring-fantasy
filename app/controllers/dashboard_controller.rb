@@ -15,9 +15,7 @@ class DashboardController < ApplicationController
 
     question_ids = @matches.flat_map { |match| match.active_prediction_questions.map(&:id) }
     @predictions_by_question_id = current_user.predictions.where(prediction_question_id: question_ids).index_by(&:prediction_question_id)
-    @answered_questions_count = @predictions_by_question_id.size
-    @daily_points = current_user.daily_points_for(@selected_date)
-    @current_user_rank = current_user.admin? ? nil : User.rank_for(current_user)
+    @current_user_rank = User.rank_for(current_user)
   end
 
   private

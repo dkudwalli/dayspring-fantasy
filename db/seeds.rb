@@ -4,6 +4,9 @@ production_seed_marker = {
   starts_at: Time.zone.local(2026, 5, 24, 19, 30)
 }
 
+seed_admin_email = "dhishan@dayspringlabs.com"
+seed_player_email = "dhishan@dayspringlabs.com"
+
 if Rails.env.production? && Match.exists?(production_seed_marker)
   puts "Production seed data already exists. Skipping."
 else
@@ -21,14 +24,14 @@ else
   User.destroy_all
 
   admin = User.create!(
-    email: "dhishan@dayspringlabs.com",
+    email: seed_admin_email,
     password: seed_admin_password,
     password_confirmation: seed_admin_password,
     admin: true
   )
 
-  viewer = User.create!(
-    email: "dhishan@dayspringlabs.com",
+  player = User.create!(
+    email: seed_player_email,
     password: seed_user_password,
     password_confirmation: seed_user_password
   )
@@ -475,13 +478,13 @@ fixtures = [
 
     next unless index.zero?
 
-    viewer.predictions.new(prediction_question: winner_question, prediction_option: winner_question.options.first).save!(validate: false)
-    viewer.predictions.new(prediction_question: toss_question, prediction_option: toss_question.options.first).save!(validate: false)
+    player.predictions.new(prediction_question: winner_question, prediction_option: winner_question.options.first).save!(validate: false)
+    player.predictions.new(prediction_question: toss_question, prediction_option: toss_question.options.first).save!(validate: false)
 
     winner_question.update!(correct_option: winner_question.options.first, result_published_at: Time.current)
     toss_question.update!(correct_option: toss_question.options.last, result_published_at: Time.current)
   end
 
   puts "Created admin login: #{admin.email}"
-  puts "Created viewer login: #{viewer.email}"
+  puts "Created player login: #{player.email}"
 end

@@ -1,33 +1,16 @@
 <%= turbo_frame_tag "dashboard_metrics" do %>
   <% if user_signed_in? %>
     <section class="page-surface space-y-5 p-5 sm:p-6">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p class="eyebrow">Your board</p>
-          <h2 class="mt-2 font-editorial text-2xl text-slate-900">Locked in for <%= selected_date.strftime("%-d %b") %></h2>
-          <p class="mt-2 text-sm leading-6 text-slate-500">Keep an eye on published results and update open questions before the first ball.</p>
-        </div>
-        <span class="<%= class_names(pill_classes(tone: :dark), 'self-start') %>">Live picks</span>
+      <div>
+        <p class="eyebrow">Your board</p>
+        <h2 class="mt-2 font-editorial text-2xl text-slate-900">League rank for <%= selected_date.strftime("%-d %b") %></h2>
+        <p class="mt-2 text-sm leading-6 text-slate-500">The table updates after published results. Use the top nav for your full history and the complete leaderboard.</p>
       </div>
 
-      <div class="grid gap-3 sm:grid-cols-3">
-        <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50/90 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Questions saved</p>
-          <p class="mt-2 text-3xl font-semibold text-slate-900"><%= answered_questions_count %></p>
-        </div>
-        <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50/90 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Points today</p>
-          <p class="mt-2 text-3xl font-semibold text-slate-900"><%= daily_points %></p>
-        </div>
-        <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50/90 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">League rank</p>
-          <p class="mt-2 text-3xl font-semibold text-slate-900"><%= current_user_rank ? "##{current_user_rank}" : "Admin" %></p>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <%= link_to "View your history", prediction_history_path, class: class_names(button_classes(variant: :secondary, size: :sm), "w-full sm:w-auto") %>
-        <%= link_to "See full leaderboard", leaderboards_path, class: class_names(button_classes(variant: :subtle, size: :sm), "w-full sm:w-auto") %>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50/90 p-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">League rank</p>
+        <p class="mt-3 text-4xl font-semibold text-slate-900"><%= current_user_rank ? "##{current_user_rank}" : "Pending" %></p>
+        <p class="mt-2 text-sm leading-6 text-slate-500">Tie-breaks stay stable by email after score.</p>
       </div>
     </section>
   <% else %>

@@ -142,7 +142,7 @@ The repository now includes:
 
 `db/seeds.rb` creates these users:
 
-- `dhishan@dayspringlabs.com` with the password from `SEED_ADMIN_PASSWORD`
+- `dhishan@dayspringlabs.com` with the password from `SEED_ADMIN_PASSWORD` and admin access
 - `dhishan@dayspringlabs.com` with the password from `SEED_USER_PASSWORD`
 
 ## Main screens
@@ -169,6 +169,6 @@ ADMIN_EMAIL=dhishan@dayspringlabs.com ADMIN_PASSWORD=choose_a_password bin/rails
 - Users must answer every currently open question for a match before picks can be saved
 - Users can submit or update picks only before the match start time and before a question result is published
 - Once a correct option is published for a question, the result is shown on the dashboard and in prediction history
-- Admin accounts are excluded from the public leaderboard
+- Admin accounts can also play and appear on the public leaderboard
 - Password reset emails are enqueued and delivered asynchronously through Solid Queue
 - In development without SMTP configured, emails are written to `tmp/mails`
