@@ -2,7 +2,11 @@
 
 # If running the rails server then create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
-  ./bin/rails db:prepare
+  if [ "${RAILS_ENV}" == "production" ]; then
+    ./bin/rails db:migrate
+  else
+    ./bin/rails db:prepare
+  fi
 fi
 
 exec "${@}"

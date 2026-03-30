@@ -1,24 +1,33 @@
-PredictionSubmission.destroy_all
-Prediction.destroy_all
-PredictionQuestion.update_all(correct_option_id: nil)
-Match.destroy_all
-User.destroy_all
+allow_production_demo_seeds = ActiveModel::Type::Boolean.new.cast(ENV.fetch("ALLOW_PRODUCTION_DEMO_SEEDS", "false"))
 
-seed_admin_password = ENV.fetch("SEED_ADMIN_PASSWORD")
-seed_user_password = ENV.fetch("SEED_USER_PASSWORD")
+if Rails.env.production? && !allow_production_demo_seeds
+  puts "Skipping demo seeds in production. Set ALLOW_PRODUCTION_DEMO_SEEDS=true and provide SEED_ADMIN_PASSWORD/SEED_USER_PASSWORD to load them intentionally."
+else
+  seed_admin_password = ENV["SEED_ADMIN_PASSWORD"].presence
+  seed_user_password = ENV["SEED_USER_PASSWORD"].presence
 
-admin = User.create!(
-  email: "admin@dayspringlabs.com",
-  password: seed_admin_password,
-  password_confirmation: seed_admin_password,
-  admin: true
-)
+  if seed_admin_password.blank? || seed_user_password.blank?
+    abort "SEED_ADMIN_PASSWORD and SEED_USER_PASSWORD are required to load demo seeds."
+  end
 
-viewer = User.create!(
-  email: "fan@dayspring.tech",
-  password: seed_user_password,
-  password_confirmation: seed_user_password
-)
+  PredictionSubmission.destroy_all
+  Prediction.destroy_all
+  PredictionQuestion.update_all(correct_option_id: nil)
+  Match.destroy_all
+  User.destroy_all
+
+  admin = User.create!(
+    email: "admin@dayspringlabs.com",
+    password: seed_admin_password,
+    password_confirmation: seed_admin_password,
+    admin: true
+  )
+
+  viewer = User.create!(
+    email: "fan@dayspring.tech",
+    password: seed_user_password,
+    password_confirmation: seed_user_password
+  )
 
 fixtures = [
   {
@@ -443,31 +452,32 @@ fixtures = [
   }
 ]
 
-fixtures.each_with_index do |match_attrs, index|
-  match = Match.create!(match_attrs)
+  fixtures.each_with_index do |match_attrs, index|
+    match = Match.create!(match_attrs)
 
-  winner_question = match.prediction_questions.create!(
-    prompt: "Which team will win the match?",
-    point_value: 1
-  )
-  toss_question = match.prediction_questions.create!(
-    prompt: "Who will win the toss?",
-    point_value: 1
-  )
+    winner_question = match.prediction_questions.create!(
+      prompt: "Which team will win the match?",
+      point_value: 1
+    )
+    toss_question = match.prediction_questions.create!(
+      prompt: "Who will win the toss?",
+      point_value: 1
+    )
 
-  [match.team_one, match.team_two].each_with_index do |team_name, option_index|
-    winner_question.options.create!(label: team_name, position: option_index)
-    toss_question.options.create!(label: team_name, position: option_index)
+    [match.team_one, match.team_two].each_with_index do |team_name, option_index|
+      winner_question.options.create!(label: team_name, position: option_index)
+      toss_question.options.create!(label: team_name, position: option_index)
+    end
+
+    next unless index.zero?
+
+    viewer.predictions.new(prediction_question: winner_question, prediction_option: winner_question.options.first).save!(validate: false)
+    viewer.predictions.new(prediction_question: toss_question, prediction_option: toss_question.options.first).save!(validate: false)
+
+    winner_question.update!(correct_option: winner_question.options.first, result_published_at: Time.current)
+    toss_question.update!(correct_option: toss_question.options.last, result_published_at: Time.current)
   end
 
-  next unless index.zero?
-
-  viewer.predictions.new(prediction_question: winner_question, prediction_option: winner_question.options.first).save!(validate: false)
-  viewer.predictions.new(prediction_question: toss_question, prediction_option: toss_question.options.first).save!(validate: false)
-
-  winner_question.update!(correct_option: winner_question.options.first, result_published_at: Time.current)
-  toss_question.update!(correct_option: toss_question.options.last, result_published_at: Time.current)
+  puts "Created admin login: #{admin.email}"
+  puts "Created viewer login: #{viewer.email}"
 end
-
-puts "Created admin login: #{admin.email}"
-puts "Created viewer login: #{viewer.email}"

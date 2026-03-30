@@ -86,6 +86,7 @@ Notes:
 - On Railway Postgres, `DATABASE_URL` is supported directly. The app also supports `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE`.
 - In Railway, those database values must exist on the app service itself, usually as reference variables such as `DATABASE_URL=${{Postgres.DATABASE_URL}}` or `PGHOST=${{Postgres.PGHOST}}`.
 - If you run only one Railway service, set `SOLID_QUEUE_IN_PUMA=1` to run jobs in the web process. Otherwise deploy a separate worker that runs `bin/jobs`.
+- Production boot runs migrations only. Demo seeds are not loaded automatically in production anymore.
 
 Run both the web process and the Solid Queue worker process in production:
 
@@ -111,8 +112,10 @@ Minimal Railway setup:
 Notes:
 
 - `db:prepare` runs automatically on container start, so Railway will create/migrate the database schema for you.
+- In production, container startup runs `db:migrate` instead of demo seeds.
 - You do not need Redis for this app.
 - `APP_HOST` and SMTP are optional for first boot; they only affect email links/delivery.
+- If you intentionally want the demo data in production, run a one-off seed with `ALLOW_PRODUCTION_DEMO_SEEDS=true`, `SEED_ADMIN_PASSWORD`, and `SEED_USER_PASSWORD`.
 
 ## Verification
 
