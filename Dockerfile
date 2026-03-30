@@ -33,8 +33,14 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompile assets with build-only placeholders because deployment env vars
+# may not be available during the image build.
+RUN SECRET_KEY_BASE_DUMMY=1 \
+    APP_HOST=example.com \
+    SMTP_ADDRESS=smtp.example.com \
+    SMTP_USERNAME=build \
+    SMTP_PASSWORD=build \
+    ./bin/rails assets:precompile
 
 
 # Final stage for app image
