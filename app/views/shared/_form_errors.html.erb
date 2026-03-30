@@ -1,0 +1,10 @@
+<% if record.errors.any? %>
+  <div class="mb-6 rounded-[1.75rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-900 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-rose-700">Please fix the following</p>
+    <ul class="mt-3 space-y-2">
+      <% record.errors.full_messages.each do |message| %>
+        <li class="leading-6"><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

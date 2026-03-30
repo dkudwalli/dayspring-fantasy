@@ -1,76 +1,92 @@
-<section class="panel">
-  <div class="panel-header">
-    <div>
-      <p class="eyebrow">Admin</p>
-      <h1>Activity Logs</h1>
-      <p class="muted">Append-only audit history for admin content changes.</p>
-    </div>
-    <div class="panel-actions">
-      <%= link_to "Prediction logs", admin_prediction_submissions_path, class: "button button-secondary" %>
-      <%= link_to "Matches", admin_root_path, class: "button button-secondary" %>
-    </div>
-  </div>
+<section class="space-y-6">
+  <section class="page-surface-dark overflow-hidden p-6 sm:p-7">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="eyebrow text-amber-300">Admin</p>
+        <h1 class="mt-2 font-editorial text-4xl">Content activity logs</h1>
+        <p class="mt-4 text-sm leading-6 text-slate-300">This is the append-only history of admin-driven content changes across matches, questions, options, and publication events.</p>
+      </div>
 
-  <%= form_with url: admin_activity_logs_path, method: :get, class: "filter-form" do |form| %>
-    <div>
-      <%= form.label :admin, "Admin email" %>
-      <%= form.text_field :admin, value: params[:admin], class: "text-input" %>
+      <div class="flex flex-wrap gap-3">
+        <%= link_to "Prediction logs", admin_prediction_submissions_path, class: button_classes(variant: :secondary, size: :sm) %>
+        <%= link_to "Matches", admin_root_path, class: button_classes(variant: :secondary, size: :sm) %>
+      </div>
     </div>
-    <div>
-      <%= form.label :log_action, "Action" %>
-      <%= form.select :log_action, options_for_select(AdminAuditLog.distinct.order(:action).pluck(:action), params[:log_action]), { include_blank: "All actions" }, class: "text-input" %>
-    </div>
-    <div>
-      <%= form.label :entity_type, "Entity" %>
-      <%= form.select :entity_type, options_for_select(AdminAuditLog.distinct.order(:auditable_type).pluck(:auditable_type), params[:entity_type]), { include_blank: "All entities" }, class: "text-input" %>
-    </div>
-    <div>
-      <%= form.label :date_from, "From" %>
-      <%= form.date_field :date_from, value: params[:date_from], class: "text-input" %>
-    </div>
-    <div>
-      <%= form.label :date_to, "To" %>
-      <%= form.date_field :date_to, value: params[:date_to], class: "text-input" %>
-    </div>
-    <div class="panel-actions">
-      <%= form.submit "Filter", class: "button button-primary" %>
-      <%= link_to "Reset", admin_activity_logs_path, class: "button button-secondary" %>
-    </div>
-  <% end %>
+  </section>
 
-  <div class="leaderboard-table">
-    <div class="leaderboard-row leaderboard-head">
-      <span>When</span>
-      <span>Admin</span>
-      <span>Action</span>
-      <span>Entity</span>
-      <span>Details</span>
-    </div>
+  <section class="page-surface p-6">
+    <p class="eyebrow">Filter logs</p>
+    <h2 class="mt-2 font-editorial text-2xl text-slate-950">Search the audit trail</h2>
 
-    <% @activity_logs.each do |log| %>
-      <div class="leaderboard-row admin-log-row">
-        <span><%= format_india_time(log.created_at, "%d %b %Y, %I:%M %p") %></span>
-        <span><%= log.admin_user.email %></span>
-        <span><%= log.action %></span>
-        <span><%= [log.auditable_type, log.auditable_id].compact.join("#") %></span>
-        <span><%= truncate(log.metadata.to_json, length: 140) %></span>
+    <%= form_with url: admin_activity_logs_path, method: :get, class: "mt-6 space-y-5" do |form| %>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div>
+          <%= form.label :admin, "Admin email", class: "field-label" %>
+          <%= form.text_field :admin, value: params[:admin], class: field_classes %>
+        </div>
+
+        <div>
+          <%= form.label :log_action, "Action", class: "field-label" %>
+          <%= form.select :log_action, options_for_select(AdminAuditLog.distinct.order(:action).pluck(:action), params[:log_action]), { include_blank: "All actions" }, class: field_classes %>
+        </div>
+      </div>
+
+      <div class="grid gap-5 lg:grid-cols-3">
+        <div>
+          <%= form.label :entity_type, "Entity", class: "field-label" %>
+          <%= form.select :entity_type, options_for_select(AdminAuditLog.distinct.order(:auditable_type).pluck(:auditable_type), params[:entity_type]), { include_blank: "All entities" }, class: field_classes %>
+        </div>
+
+        <div>
+          <%= form.label :date_from, "From", class: "field-label" %>
+          <%= form.date_field :date_from, value: params[:date_from], class: field_classes %>
+        </div>
+
+        <div>
+          <%= form.label :date_to, "To", class: "field-label" %>
+          <%= form.date_field :date_to, value: params[:date_to], class: field_classes %>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <%= form.submit "Apply filters", class: button_classes(variant: :primary, size: :md) %>
+        <%= link_to "Reset", admin_activity_logs_path, class: button_classes(variant: :secondary, size: :md) %>
       </div>
     <% end %>
-  </div>
+  </section>
 
-  <div class="pagination-row">
-    <% if @page > 1 %>
-      <%= link_to "Previous", admin_activity_logs_path(request.query_parameters.merge(page: @page - 1)), class: "button button-secondary button-small" %>
-    <% else %>
-      <span class="muted">Previous</span>
-    <% end %>
+  <section class="page-surface overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Admin</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @activity_logs.each do |log| %>
+            <tr>
+              <td><%= format_india_time(log.created_at, "%d %b %Y, %I:%M %p") %></td>
+              <td><%= log.admin_user.email %></td>
+              <td><span class="<%= pill_classes(tone: :info) %>"><%= log.action %></span></td>
+              <td><%= [log.auditable_type, log.auditable_id].compact.join("#") %></td>
+              <td><span class="text-slate-500"><%= truncate(log.metadata.to_json, length: 140) %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
 
-    <span class="muted">Page <%= @page %> of <%= @total_pages %></span>
-
-    <% if @page < @total_pages %>
-      <%= link_to "Next", admin_activity_logs_path(request.query_parameters.merge(page: @page + 1)), class: "button button-secondary button-small" %>
-    <% else %>
-      <span class="muted">Next</span>
-    <% end %>
-  </div>
+    <div class="px-6 pb-6">
+      <%= render "shared/pagination",
+        page: @page,
+        total_pages: @total_pages,
+        previous_path: (@page > 1 ? admin_activity_logs_path(request.query_parameters.merge(page: @page - 1)) : nil),
+        next_path: (@page < @total_pages ? admin_activity_logs_path(request.query_parameters.merge(page: @page + 1)) : nil) %>
+    </div>
+  </section>
 </section>

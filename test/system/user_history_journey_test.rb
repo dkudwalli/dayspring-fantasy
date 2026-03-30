@@ -5,16 +5,16 @@ class UserHistoryJourneyTest < ApplicationSystemTestCase
     visit new_session_path
     fill_in "Email", with: users(:member).email
     fill_in "Password", with: "password123"
-    click_button "Login"
+    click_button "Log in"
 
-    assert_text "Your score"
+    assert_text "Questions saved"
     click_link "History"
 
-    assert_text "Your picks and results"
+    assert_text "Your picks timeline"
     assert_text matches(:open_match).name
 
-    click_button "Logout"
+    click_button "Log out"
     assert_text "You have been logged out."
-    assert_text "Login"
+    assert_text "Log in"
   end
 end

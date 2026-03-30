@@ -7,7 +7,7 @@ class DashboardController < ApplicationController
     @total_schedule_pages = @available_dates.any? ? (@available_dates.size.to_f / DATES_PER_PAGE).ceil : 0
     @schedule_page = @available_dates.any? ? [[schedule_page, 1].max, @total_schedule_pages].min : 0
     @visible_dates = @available_dates.any? ? (@available_dates.slice((@schedule_page - 1) * DATES_PER_PAGE, DATES_PER_PAGE) || []) : []
-    @matches = Match.visible_to_users.on_date(@selected_date).includes(active_prediction_questions: :active_options)
+    @matches = Match.visible_to_users.on_date(@selected_date).includes(active_prediction_questions: %i[active_options correct_option])
     @predictions_by_question_id = {}
     @ranked_users = User.top_ranked(3).to_a
 

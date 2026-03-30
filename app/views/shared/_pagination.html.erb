@@ -1,0 +1,21 @@
+<% if total_pages > 1 %>
+  <div class="mt-6 flex flex-col gap-3 rounded-[1.75rem] border border-slate-200 bg-white/92 px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <% if previous_path.present? %>
+        <%= link_to "Previous", previous_path, class: button_classes(variant: :secondary, size: :sm) %>
+      <% else %>
+        <span class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-400">Previous</span>
+      <% end %>
+    </div>
+
+    <p class="text-sm text-slate-500">Page <%= page %> of <%= total_pages %></p>
+
+    <div class="sm:text-right">
+      <% if next_path.present? %>
+        <%= link_to "Next", next_path, class: button_classes(variant: :secondary, size: :sm) %>
+      <% else %>
+        <span class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-400">Next</span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

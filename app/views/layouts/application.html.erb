@@ -1,55 +1,82 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Dayspring IPL Prediction</title>
+    <title><%= app_name %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="app-shell">
-    <header class="topbar">
-      <div class="brand-block">
-        <%= link_to "Dayspring IPL Prediction", root_path, class: "brand" %>
-        <p class="tagline">Daily match picks, automatic locking, and a live leaderboard.</p>
-      </div>
-      <nav class="topnav">
-        <div class="nav-links">
-          <%= link_to "Home", root_path, class: "nav-link" %>
-          <%= link_to "Leaderboard", leaderboards_path, class: "nav-link" %>
-          <% if user_signed_in? %>
-            <%= link_to "History", prediction_history_path, class: "nav-link" %>
-          <% end %>
+  <body>
+    <div class="relative isolate min-h-screen overflow-x-clip">
+      <header class="border-b border-white/10 bg-slate-950/80 backdrop-blur">
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-6 py-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="space-y-3">
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-300/80">Dayspring fantasy league</p>
+              <div class="space-y-2">
+                <%= link_to root_path, class: "inline-block" do %>
+                  <span class="font-display text-4xl uppercase tracking-[0.08em] text-white sm:text-5xl">IPL Match Desk</span>
+                <% end %>
+                <p class="max-w-2xl text-sm leading-6 text-slate-300">
+                  Daily match picks, automatic locking, live scoring, and a cleaner admin workflow for league operations.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-3 lg:items-end">
+              <nav class="flex flex-wrap gap-2">
+                <% site_navigation_items.each do |item| %>
+                  <%= link_to item[:label], item[:path], class: nav_link_classes(active: item[:active]) %>
+                <% end %>
+              </nav>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <% if user_signed_in? %>
+                  <span class="inline-flex items-center rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-slate-200">
+                    <span class="mr-2 hidden text-slate-400 sm:inline">Signed in as</span>
+                    <span class="font-medium text-white"><%= current_user.email %></span>
+                  </span>
+                  <%= button_to "Log out", session_path, method: :delete, class: button_classes(variant: :secondary, size: :sm), form_class: "inline-block" %>
+                <% else %>
+                  <%= link_to "Log in", new_session_path, class: nav_link_classes(active: controller_name == "sessions") %>
+                  <%= link_to "Create account", new_registration_path, class: button_classes(variant: :accent, size: :sm) %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
           <% if current_user&.admin? %>
-            <%= link_to "Admin", admin_root_path, class: "nav-link" %>
-            <%= link_to "Logs", admin_prediction_submissions_path, class: "nav-link" %>
-            <%= link_to "Activity", admin_activity_logs_path, class: "nav-link" %>
+            <div class="border-t border-white/10 py-4">
+              <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Admin command deck</p>
+                  <p class="mt-1 text-sm text-slate-300">Manage fixtures, questions, results, and audit trails without leaving Hotwire flow.</p>
+                </div>
+
+                <nav class="flex flex-wrap gap-2">
+                  <% admin_navigation_items.each do |item| %>
+                    <%= link_to item[:label], item[:path], class: admin_nav_link_classes(active: item[:active]) %>
+                  <% end %>
+                </nav>
+              </div>
+            </div>
           <% end %>
         </div>
-        <div class="nav-account">
-          <% if user_signed_in? %>
-            <span class="user-badge"><%= current_user.email %></span>
-            <%= button_to "Logout", session_path, method: :delete, class: "nav-button" %>
-          <% else %>
-            <%= link_to "Login", new_session_path, class: "nav-link" %>
-            <%= link_to "Signup", new_registration_path, class: "nav-accent button" %>
-          <% end %>
+      </header>
+
+      <main class="relative z-10 pb-16">
+        <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <%= render "shared/flash_messages", messages: flash.to_hash %>
+          <%= yield %>
         </div>
-      </nav>
-    </header>
-
-    <% if flash[:notice] %>
-      <p class="flash flash-notice"><%= flash[:notice] %></p>
-    <% end %>
-    <% if flash[:alert] %>
-      <p class="flash flash-alert"><%= flash[:alert] %></p>
-    <% end %>
-
-    <main class="page-wrap">
-      <%= yield %>
-    </main>
+      </main>
+    </div>
   </body>
 </html>

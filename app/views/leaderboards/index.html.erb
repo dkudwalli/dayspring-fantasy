@@ -1,41 +1,71 @@
-<section class="panel">
-  <div class="panel-header">
-    <div>
-      <p class="eyebrow">Points Table</p>
-      <h1>User rankings</h1>
-      <p class="muted">Admin accounts are excluded from the public leaderboard.</p>
-    </div>
-  </div>
-
-  <div class="leaderboard-table">
-    <div class="leaderboard-row leaderboard-head">
-      <span>Rank</span>
-      <span>User</span>
-      <span>Points</span>
-    </div>
-
-    <% @ranked_users.each do |user| %>
-      <div class="leaderboard-row">
-        <span>#<%= user.leaderboard_rank %></span>
-        <span><%= user.email %></span>
-        <span><%= user.score %></span>
+<section class="space-y-6">
+  <section class="page-surface-dark overflow-hidden p-6 sm:p-7">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="eyebrow text-amber-300">Points table</p>
+        <h1 class="mt-2 font-editorial text-4xl sm:text-5xl">League leaderboard</h1>
+        <p class="mt-4 text-sm leading-6 text-slate-300">Only non-admin players appear here. Ranking breaks ties by email after score, so the table stays stable as new results are published.</p>
       </div>
-    <% end %>
-  </div>
 
-  <div class="pagination-row">
-    <% if @page > 1 %>
-      <%= link_to "Previous", leaderboards_path(page: @page - 1), class: "button button-secondary button-small" %>
-    <% else %>
-      <span class="muted">Previous</span>
-    <% end %>
+      <div class="grid gap-3 sm:grid-cols-2 lg:min-w-[18rem]">
+        <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Current page</p>
+          <p class="mt-2 text-3xl font-semibold text-white"><%= @page %></p>
+        </div>
+        <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Pages total</p>
+          <p class="mt-2 text-3xl font-semibold text-white"><%= @total_pages %></p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <span class="muted">Page <%= @page %> of <%= @total_pages %></span>
+  <section class="page-surface overflow-hidden">
+    <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="eyebrow">Standings</p>
+        <h2 class="mt-2 font-editorial text-3xl text-slate-950">Rank, player, score</h2>
+      </div>
+      <p class="text-sm leading-6 text-slate-500">Admins are excluded from the public board.</p>
+    </div>
 
-    <% if @page < @total_pages %>
-      <%= link_to "Next", leaderboards_path(page: @page + 1), class: "button button-secondary button-small" %>
-    <% else %>
-      <span class="muted">Next</span>
-    <% end %>
-  </div>
+    <div class="overflow-x-auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Email</th>
+            <th class="text-right">Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @ranked_users.each do |user| %>
+            <tr>
+              <td>
+                <span class="<%= pill_classes(tone: user.leaderboard_rank <= 3 ? :accent : :neutral) %>">#<%= user.leaderboard_rank %></span>
+              </td>
+              <td>
+                <div class="font-semibold text-slate-900"><%= user_handle(user) %></div>
+              </td>
+              <td>
+                <span class="text-slate-500"><%= user.email %></span>
+              </td>
+              <td class="text-right">
+                <span class="font-semibold text-slate-900"><%= user.score %> pts</span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="px-6 pb-6">
+      <%= render "shared/pagination",
+        page: @page,
+        total_pages: @total_pages,
+        previous_path: (@page > 1 ? leaderboards_path(page: @page - 1) : nil),
+        next_path: (@page < @total_pages ? leaderboards_path(page: @page + 1) : nil) %>
+    </div>
+  </section>
 </section>

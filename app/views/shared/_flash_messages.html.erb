@@ -1,0 +1,30 @@
+<%= turbo_frame_tag "flash_messages" do %>
+  <% visible_messages = messages.to_h.slice("notice", "alert").reject { |_, message| message.blank? } %>
+
+  <div class="<%= visible_messages.any? ? 'mb-6 space-y-3' : '' %>">
+    <% visible_messages.each do |type, message| %>
+      <div
+        data-controller="flash"
+        data-flash-timeout-value="<%= type.to_s == 'notice' ? 4000 : 6000 %>"
+        class="<%= flash_message_classes(type) %>"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div class="space-y-1">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] <%= type.to_s == 'notice' ? 'text-emerald-700' : 'text-rose-700' %>">
+              <%= type.to_s == "notice" ? "Update saved" : "Action needed" %>
+            </p>
+            <p class="text-sm leading-6"><%= message %></p>
+          </div>
+
+          <button
+            type="button"
+            class="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-current transition hover:bg-black/5"
+            data-action="flash#dismiss"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

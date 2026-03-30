@@ -1,21 +1,47 @@
-<section class="auth-card">
-  <p class="eyebrow">Login</p>
-  <h1>Welcome back</h1>
+<section class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+  <section class="page-surface-dark overflow-hidden p-6 sm:p-7">
+    <p class="eyebrow text-amber-300">Player access</p>
+    <h1 class="mt-2 font-editorial text-4xl sm:text-5xl">Welcome back to the pool.</h1>
+    <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300">Sign in to update today’s picks, review published results, and stay on top of the leaderboard as each fixture closes out.</p>
 
-  <%= form_with url: session_path, class: "stack-form" do |form| %>
-    <div>
-      <%= label_tag :email %>
-      <%= email_field_tag :email, params[:email], required: true, class: "text-input" %>
+    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Before lock</p>
+        <p class="mt-2 text-sm leading-6 text-slate-200">Every open question must be answered before a save can go through.</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">After results</p>
+        <p class="mt-2 text-sm leading-6 text-slate-200">Published outcomes stay visible in both the match center and your history timeline.</p>
+      </div>
     </div>
+  </section>
 
-    <div>
-      <%= label_tag :password %>
-      <%= password_field_tag :password, nil, required: true, class: "text-input" %>
-    </div>
+  <section class="page-surface p-6 sm:p-8">
+    <p class="eyebrow">Log in</p>
+    <h2 class="mt-2 font-editorial text-3xl text-slate-950">Enter your account details</h2>
+    <p class="mt-3 text-sm leading-6 text-slate-500">Use the work email you registered with to continue.</p>
 
-    <div class="auth-actions">
-      <%= form.submit "Login", class: "button button-primary" %>
-      <%= link_to "Forgot password?", new_password_reset_path, class: "nav-link" %>
-    </div>
-  <% end %>
+    <%= form_with url: session_path, class: "mt-8 space-y-5" do |form| %>
+      <div>
+        <%= label_tag :email, "Email", class: "field-label" %>
+        <%= email_field_tag :email, params[:email], required: true, autofocus: true, class: field_classes %>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between gap-3">
+          <%= label_tag :password, "Password", class: "field-label !mb-0" %>
+          <%= link_to "Forgot password?", new_password_reset_path, class: "text-sm font-medium text-slate-500 hover:text-slate-900" %>
+        </div>
+        <%= password_field_tag :password, nil, required: true, class: class_names(field_classes, "mt-2") %>
+      </div>
+
+      <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+        <%= form.submit "Log in", class: button_classes(variant: :primary, size: :lg) %>
+        <p class="text-sm text-slate-500">
+          New here?
+          <%= link_to "Create an account", new_registration_path, class: "font-medium text-slate-900 hover:text-slate-700" %>
+        </p>
+      </div>
+    <% end %>
+  </section>
 </section>

@@ -1,79 +1,92 @@
-<section class="panel">
-  <div class="panel-header">
-    <div>
-      <p class="eyebrow">Admin</p>
-      <h1>Prediction logs</h1>
+<section class="space-y-6">
+  <section class="page-surface-dark overflow-hidden p-6 sm:p-7">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="eyebrow text-amber-300">Admin</p>
+        <h1 class="mt-2 font-editorial text-4xl">Prediction submission logs</h1>
+        <p class="mt-4 text-sm leading-6 text-slate-300">Review who changed answers, on which fixture, and when a prediction record was first created versus updated.</p>
+      </div>
+      <%= link_to "Matches", admin_root_path, class: button_classes(variant: :secondary, size: :sm) %>
     </div>
-    <%= link_to "Matches", admin_root_path, class: "button button-secondary" %>
-  </div>
+  </section>
 
-  <%= form_with url: admin_prediction_submissions_path, method: :get, class: "stack-form filter-form" do |form| %>
-    <div class="form-split">
-      <div>
-        <%= form.label :user, "User email" %>
-        <%= form.text_field :user, value: params[:user], class: "text-input" %>
+  <section class="page-surface p-6">
+    <p class="eyebrow">Filter logs</p>
+    <h2 class="mt-2 font-editorial text-2xl text-slate-950">Narrow the audit trail</h2>
+
+    <%= form_with url: admin_prediction_submissions_path, method: :get, class: "mt-6 space-y-5" do |form| %>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div>
+          <%= form.label :user, "User email", class: "field-label" %>
+          <%= form.text_field :user, value: params[:user], class: field_classes %>
+        </div>
+
+        <div>
+          <%= form.label :match_id, "Match", class: "field-label" %>
+          <%= form.select :match_id, options_from_collection_for_select(@matches, :id, :name, params[:match_id]), { include_blank: "All matches" }, class: field_classes %>
+        </div>
       </div>
 
-      <div>
-        <%= form.label :match_id, "Match" %>
-        <%= form.select :match_id, options_from_collection_for_select(@matches, :id, :name, params[:match_id]), { include_blank: "All matches" }, class: "text-input" %>
+      <div class="grid gap-5 lg:grid-cols-3">
+        <div>
+          <%= form.label :action_type, "Action", class: "field-label" %>
+          <%= form.select :action_type, options_for_select([["All actions", ""], ["Created", "created"], ["Updated", "updated"]], params[:action_type]), {}, class: field_classes %>
+        </div>
+
+        <div>
+          <%= form.label :date_from, "From", class: "field-label" %>
+          <%= form.date_field :date_from, value: params[:date_from], class: field_classes %>
+        </div>
+
+        <div>
+          <%= form.label :date_to, "To", class: "field-label" %>
+          <%= form.date_field :date_to, value: params[:date_to], class: field_classes %>
+        </div>
       </div>
-    </div>
 
-    <div class="form-split">
-      <div>
-        <%= form.label :action_type, "Action" %>
-        <%= form.select :action_type, options_for_select([["All actions", ""], ["Created", "created"], ["Updated", "updated"]], params[:action_type]), {}, class: "text-input" %>
-      </div>
-
-      <div>
-        <%= form.label :date_from, "From" %>
-        <%= form.date_field :date_from, value: params[:date_from], class: "text-input" %>
-      </div>
-
-      <div>
-        <%= form.label :date_to, "To" %>
-        <%= form.date_field :date_to, value: params[:date_to], class: "text-input" %>
-      </div>
-    </div>
-
-    <div class="panel-actions">
-      <%= form.submit "Apply filters", class: "button button-primary" %>
-      <%= link_to "Clear", admin_prediction_submissions_path, class: "button button-secondary" %>
-    </div>
-  <% end %>
-
-  <div class="leaderboard-table">
-    <div class="leaderboard-row leaderboard-head">
-      <span>Time</span>
-      <span>User</span>
-      <span>Match</span>
-      <span>Question</span>
-      <span>Pick</span>
-      <span>Action</span>
-    </div>
-
-    <% @prediction_submissions.each do |submission| %>
-      <div class="leaderboard-row admin-log-row">
-        <span><%= format_india_time(submission.submitted_at, "%d %b %Y, %I:%M %p") %></span>
-        <span><%= submission.user.email %></span>
-        <span><%= submission.match.name %></span>
-        <span><%= submission.prediction_question.prompt %></span>
-        <span><%= submission.prediction_option.label %></span>
-        <span><%= submission.action_type %></span>
+      <div class="flex flex-wrap gap-3">
+        <%= form.submit "Apply filters", class: button_classes(variant: :primary, size: :md) %>
+        <%= link_to "Clear filters", admin_prediction_submissions_path, class: button_classes(variant: :secondary, size: :md) %>
       </div>
     <% end %>
-  </div>
+  </section>
 
-  <% if @total_pages > 1 %>
-    <div class="pagination-row">
-      <% if @page > 1 %>
-        <%= link_to "Previous", admin_prediction_submissions_path(request.query_parameters.merge(page: @page - 1)), class: "button button-secondary" %>
-      <% end %>
-      <span class="muted">Page <%= @page %> of <%= @total_pages %></span>
-      <% if @page < @total_pages %>
-        <%= link_to "Next", admin_prediction_submissions_path(request.query_parameters.merge(page: @page + 1)), class: "button button-secondary" %>
-      <% end %>
+  <section class="page-surface overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Match</th>
+            <th>Question</th>
+            <th>Pick</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @prediction_submissions.each do |submission| %>
+            <tr>
+              <td><%= format_india_time(submission.submitted_at, "%d %b %Y, %I:%M %p") %></td>
+              <td><%= submission.user.email %></td>
+              <td><%= submission.match.name %></td>
+              <td><%= submission.prediction_question.prompt %></td>
+              <td><%= submission.prediction_option.label %></td>
+              <td>
+                <span class="<%= pill_classes(tone: submission.action_type == 'created' ? :accent : :info) %>"><%= submission.action_type.capitalize %></span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
-  <% end %>
+
+    <div class="px-6 pb-6">
+      <%= render "shared/pagination",
+        page: @page,
+        total_pages: @total_pages,
+        previous_path: (@page > 1 ? admin_prediction_submissions_path(request.query_parameters.merge(page: @page - 1)) : nil),
+        next_path: (@page < @total_pages ? admin_prediction_submissions_path(request.query_parameters.merge(page: @page + 1)) : nil) %>
+    </div>
+  </section>
 </section>

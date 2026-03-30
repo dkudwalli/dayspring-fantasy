@@ -11,10 +11,11 @@ class PredictionHistoriesTest < ActionDispatch::IntegrationTest
     get prediction_history_path
 
     assert_response :success
-    assert_match "Your picks and results", response.body
+    assert_match "Your picks timeline", response.body
     assert_match matches(:locked_match).name, response.body
-    assert_match "Your pick: #{prediction_options(:locked_team_one_option).label}", response.body
-    assert_match "Correct: #{prediction_options(:locked_team_one_option).label}", response.body
+    assert_match "Your pick:", response.body
+    assert_match "Correct answer:", response.body
+    assert_match prediction_options(:locked_team_one_option).label, response.body
     assert_match "4 pts", response.body
   end
 

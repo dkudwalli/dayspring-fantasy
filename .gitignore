@@ -60,3 +60,6 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

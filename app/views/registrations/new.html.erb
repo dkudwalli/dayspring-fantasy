@@ -1,27 +1,60 @@
-<section class="auth-card">
-  <p class="eyebrow">Signup</p>
-  <h1>Create your account</h1>
+<section class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+  <section class="page-surface-dark overflow-hidden p-6 sm:p-7">
+    <p class="eyebrow text-amber-300">Join the pool</p>
+    <h1 class="mt-2 font-editorial text-4xl sm:text-5xl">Create a league account.</h1>
+    <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300">Accounts are restricted to approved Dayspring domains, which keeps the leaderboard clean and the competition private.</p>
 
-  <% if @user.errors.any? %>
-    <div class="error-box"><%= @user.errors.full_messages.to_sentence %></div>
-  <% end %>
-
-  <%= form_with model: @user, url: registration_path, class: "stack-form" do |form| %>
-    <div>
-      <%= form.label :email %>
-      <%= form.email_field :email, required: true, class: "text-input" %>
+    <div class="mt-8 space-y-4">
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Allowed domains</p>
+        <p class="mt-2 text-sm leading-6 text-slate-200">@dayspringlabs.com and @dayspring.tech</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">What you get</p>
+        <p class="mt-2 text-sm leading-6 text-slate-200">Prediction saves, result tracking, personal history, and live position on the leaderboard.</p>
+      </div>
     </div>
+  </section>
 
-    <div>
-      <%= form.label :password %>
-      <%= form.password_field :password, required: true, class: "text-input" %>
-    </div>
+  <section class="page-surface p-6 sm:p-8">
+    <p class="eyebrow">Sign up</p>
+    <h2 class="mt-2 font-editorial text-3xl text-slate-950">Create your account</h2>
+    <p class="mt-3 text-sm leading-6 text-slate-500">Use your work email and a password you can remember on match day.</p>
 
-    <div>
-      <%= form.label :password_confirmation %>
-      <%= form.password_field :password_confirmation, required: true, class: "text-input" %>
-    </div>
+    <%= render "shared/form_errors", record: @user %>
 
-    <%= form.submit "Create account", class: "button button-primary" %>
-  <% end %>
+    <%= form_with model: @user, url: registration_path, class: "space-y-5" do |form| %>
+      <div>
+        <%= form.label :email, class: "field-label" %>
+        <%= form.email_field :email, required: true, autofocus: true, class: field_classes(invalid: @user.errors.include?(:email)) %>
+        <% if (message = form_error_message(@user, :email)) %>
+          <p class="field-error"><%= message %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form.label :password, class: "field-label" %>
+        <%= form.password_field :password, required: true, class: field_classes(invalid: @user.errors.include?(:password)) %>
+        <% if (message = form_error_message(@user, :password)) %>
+          <p class="field-error"><%= message %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form.label :password_confirmation, class: "field-label" %>
+        <%= form.password_field :password_confirmation, required: true, class: field_classes(invalid: @user.errors.include?(:password_confirmation)) %>
+        <% if (message = form_error_message(@user, :password_confirmation)) %>
+          <p class="field-error"><%= message %></p>
+        <% end %>
+      </div>
+
+      <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+        <%= form.submit "Create account", class: button_classes(variant: :primary, size: :lg) %>
+        <p class="text-sm text-slate-500">
+          Already registered?
+          <%= link_to "Log in", new_session_path, class: "font-medium text-slate-900 hover:text-slate-700" %>
+        </p>
+      </div>
+    <% end %>
+  </section>
 </section>

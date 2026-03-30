@@ -1,0 +1,167 @@
+<% questions = match.active_prediction_questions.to_a %>
+<% open_questions = questions.select(&:open_for_predictions?) %>
+<% results_announced = questions.any?(&:result_published?) %>
+<% match_state = dashboard_match_state(match, questions) %>
+<% winner_prediction = winner_prediction_for_match(match, questions, predictions_by_question_id) %>
+<% saved_count = answered_questions_for_match(questions, predictions_by_question_id) %>
+
+<%= turbo_frame_tag dom_id(match, :dashboard_card) do %>
+  <article class="page-surface overflow-hidden p-6 sm:p-7">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div class="space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="<%= pill_classes(tone: match_state[:tone]) %>"><%= match_state[:label] %></span>
+          <span class="<%= pill_classes(tone: :neutral) %>"><%= format_india_time(match.starts_at, "%-I:%M %p") %> IST</span>
+          <span class="<%= pill_classes(tone: :neutral) %>"><%= match.venue.presence || "IPL Venue" %></span>
+        </div>
+        <div>
+          <p class="eyebrow">Match card</p>
+          <h3 class="mt-2 font-editorial text-3xl text-slate-950"><%= match.name %></h3>
+          <p class="mt-2 text-sm leading-6 text-slate-500">
+            <%= match_state[:description] %>
+            <% if user_signed_in? && questions.any? %>
+              · <%= saved_count %>/<%= questions.count %> questions saved
+            <% end %>
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-[1.75rem] border border-slate-200 bg-slate-50/90 p-4 sm:min-w-[24rem]">
+        <div class="flex flex-col items-center gap-3 text-center">
+          <%= team_logo(match.team_one) %>
+          <div>
+            <p class="text-base font-semibold text-slate-900"><%= match.team_one %></p>
+            <% if winner_prediction&.prediction_option&.label == match.team_one %>
+              <span class="<%= pill_classes(tone: :accent) %> mt-2">Your winner pick</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <p class="font-display text-4xl uppercase tracking-[0.08em] text-slate-400">VS</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">T20</p>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 text-center">
+          <%= team_logo(match.team_two) %>
+          <div>
+            <p class="text-base font-semibold text-slate-900"><%= match.team_two %></p>
+            <% if winner_prediction&.prediction_option&.label == match.team_two %>
+              <span class="<%= pill_classes(tone: :accent) %> mt-2">Your winner pick</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if results_announced && open_questions.empty? %>
+      <div class="mt-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900">
+        Results have been announced for this match. The card is now read-only and points are visible on published questions.
+      </div>
+    <% elsif results_announced %>
+      <div class="mt-6 rounded-[1.5rem] border border-sky-200 bg-sky-50 px-5 py-4 text-sm leading-6 text-sky-900">
+        Some results are already published. Only the remaining open questions can still be edited.
+      </div>
+    <% elsif match.locked? %>
+      <div class="mt-6 rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm leading-6 text-rose-900">
+        This match is locked because play has started. Your saved picks remain visible below.
+      </div>
+    <% end %>
+
+    <% if user_signed_in? && questions.any? %>
+      <%= form_with url: predictions_path, scope: :prediction, data: { controller: "prediction-form", prediction_form_locked_value: open_questions.empty? } do |form| %>
+        <%= form.hidden_field :match_id, value: match.id %>
+        <% all_answered = open_questions.all? { |question| predictions_by_question_id[question.id].present? } %>
+
+        <div class="mt-6 grid gap-4 xl:grid-cols-2">
+          <% questions.each do |question| %>
+            <% question_locked = !question.open_for_predictions? %>
+            <% prediction = predictions_by_question_id[question.id] %>
+            <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="space-y-2">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="<%= pill_classes(tone: question.result_published? ? :success : (question_locked ? :warning : :neutral)) %>">
+                      <%= question.result_published? ? "Published" : (question_locked ? "Locked" : "Open") %>
+                    </span>
+                    <span class="<%= pill_classes(tone: :neutral) %>"><%= pluralize(question.point_value, "point") %></span>
+                  </div>
+                  <h4 class="text-lg font-semibold text-slate-950"><%= question.prompt %></h4>
+                  <% if prediction.present? && !question.result_published? %>
+                    <p class="text-sm text-slate-500">Saved pick: <span class="font-medium text-slate-700"><%= prediction.prediction_option.label %></span></p>
+                  <% end %>
+                </div>
+
+                <% if question.result_published? %>
+                  <div class="flex flex-wrap gap-2 sm:max-w-xs sm:justify-end">
+                    <span class="<%= pill_classes(tone: :success) %>">Correct: <%= question.correct_option.label %></span>
+                    <% if prediction.present? %>
+                      <span class="<%= pill_classes(tone: prediction.correct? ? :accent : :neutral) %>">
+                        Your pick: <%= prediction.prediction_option.label %> · <%= prediction.earned_points %> pts
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+
+              <% if question_locked %>
+                <% if !question.result_published? && prediction.present? %>
+                  <p class="mt-4 rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    Locked with your saved answer: <span class="font-medium text-slate-800"><%= prediction.prediction_option.label %></span>
+                  </p>
+                <% elsif !question.result_published? %>
+                  <p class="mt-4 rounded-[1.25rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    No answer was saved before this question locked.
+                  </p>
+                <% end %>
+              <% else %>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  <% question.active_options.each do |option| %>
+                    <label class="<%= class_names(
+                      'flex cursor-pointer items-start gap-3 rounded-[1.35rem] border px-4 py-3 text-sm font-medium transition',
+                      prediction&.prediction_option_id == option.id ?
+                        'border-slate-950 bg-slate-950 text-white shadow-lg shadow-slate-950/10' :
+                        'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                    ) %>">
+                      <%= radio_button_tag "prediction[answers][#{question.id}]", option.id, prediction&.prediction_option_id == option.id, required: true, class: "mt-1 h-4 w-4 border-white/60 text-slate-900 focus:ring-amber-300", data: { action: "change->prediction-form#refresh" } %>
+                      <span class="leading-6"><%= option.label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              <% end %>
+            </section>
+          <% end %>
+        </div>
+
+        <% if open_questions.any? %>
+          <div class="mt-6 flex flex-col gap-3 rounded-[1.75rem] border border-slate-200 bg-white/90 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p
+              class="rounded-full border px-4 py-2 text-sm font-medium transition <%= all_answered ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-900' %>"
+              data-prediction-form-target="message"
+            >
+              <%= all_answered ? "All questions answered. You can save or update your picks." : "Select one option for every question to enable saving." %>
+            </p>
+            <%= form.submit(all_answered ? "Update picks" : "Save all picks", class: button_classes(variant: :primary, size: :md), disabled: !all_answered, data: { prediction_form_target: "submit" }) %>
+          </div>
+        <% else %>
+          <div class="mt-6 rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
+            No questions are currently open for editing on this match.
+          </div>
+        <% end %>
+      <% end %>
+    <% elsif questions.empty? %>
+      <div class="mt-6 rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50/80 px-5 py-6 text-sm leading-6 text-slate-500">
+        No active prediction questions are available for this match yet.
+      </div>
+    <% else %>
+      <div class="mt-6 rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+        <h4 class="text-lg font-semibold text-slate-950">Join the pool to lock answers</h4>
+        <p class="mt-2 text-sm leading-6 text-slate-500">Create an account or sign in before the match starts to save your picks and track points over the season.</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <%= link_to "Log in", new_session_path, class: button_classes(variant: :primary, size: :sm) %>
+          <%= link_to "Create account", new_registration_path, class: button_classes(variant: :secondary, size: :sm) %>
+        </div>
+      </div>
+    <% end %>
+  </article>
+<% end %>
