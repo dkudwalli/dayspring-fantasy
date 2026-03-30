@@ -62,6 +62,7 @@ If port `5432` is free on your machine, you can omit `DB_PORT=5436` and use the 
 Set these environment variables in production:
 
 ```bash
+export SECRET_KEY_BASE=$(bin/rails secret)
 export APP_HOST=predictions.example.com
 export APP_PROTOCOL=https
 export MAILER_FROM_EMAIL=noreply@example.com
@@ -80,8 +81,10 @@ export JOB_CONCURRENCY=1
 
 Notes:
 
+- Set `SECRET_KEY_BASE` directly in Railway, or provide `RAILS_MASTER_KEY` and store `secret_key_base` in Rails credentials.
 - On Railway, `APP_HOST` is optional if the service has public networking enabled and `RAILWAY_PUBLIC_DOMAIN` is available.
-- On Railway Postgres, `DATABASE_URL` is supported directly.
+- On Railway Postgres, `DATABASE_URL` is supported directly. The app also supports `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE`.
+- In Railway, those database values must exist on the app service itself, usually as reference variables such as `DATABASE_URL=${{Postgres.DATABASE_URL}}` or `PGHOST=${{Postgres.PGHOST}}`.
 - If you run only one Railway service, set `SOLID_QUEUE_IN_PUMA=1` to run jobs in the web process. Otherwise deploy a separate worker that runs `bin/jobs`.
 
 Run both the web process and the Solid Queue worker process in production:
@@ -90,6 +93,26 @@ Run both the web process and the Solid Queue worker process in production:
 bin/rails server
 bin/jobs
 ```
+
+## Railway quick start
+
+This app needs a PostgreSQL service in Railway. It does not run with only the web app container.
+
+Minimal Railway setup:
+
+1. Add a PostgreSQL service to the same Railway project.
+2. In the web app service, set `SECRET_KEY_BASE` to a long random value from `bin/rails secret`.
+3. In the web app service, add a database reference variable:
+   `DATABASE_URL=${{Postgres.DATABASE_URL}}`
+   If your database service has a different name, replace `Postgres` with that service name.
+4. If you want background jobs to run in the same Railway service, set `SOLID_QUEUE_IN_PUMA=1`.
+5. Redeploy the web app service.
+
+Notes:
+
+- `db:prepare` runs automatically on container start, so Railway will create/migrate the database schema for you.
+- You do not need Redis for this app.
+- `APP_HOST` and SMTP are optional for first boot; they only affect email links/delivery.
 
 ## Verification
 

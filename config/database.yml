@@ -2,20 +2,20 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: <%= ENV["DB_HOST"] %>
-  port: <%= ENV.fetch("DB_PORT", 5432) %>
-  username: <%= ENV.fetch("DB_USERNAME", ENV.fetch("USER", "postgres")) %>
-  password: <%= ENV["DB_PASSWORD"] %>
+  host: <%= ENV["DB_HOST"].presence || ENV["PGHOST"] %>
+  port: <%= ENV["DB_PORT"].presence || ENV["PGPORT"].presence || 5432 %>
+  username: <%= ENV["DB_USERNAME"].presence || ENV["PGUSER"].presence || ENV.fetch("USER", "postgres") %>
+  password: <%= ENV["DB_PASSWORD"].presence || ENV["PGPASSWORD"] %>
 
 development:
   <<: *default
-  database: <%= ENV.fetch("DB_NAME", "dayspring_ipl_prediction_development") %>
+  database: <%= ENV["DB_NAME"].presence || ENV["PGDATABASE"].presence || "dayspring_ipl_prediction_development" %>
 
 test:
   <<: *default
-  database: <%= ENV.fetch("DB_TEST_NAME", "dayspring_ipl_prediction_test") %>
+  database: <%= ENV["DB_TEST_NAME"].presence || "dayspring_ipl_prediction_test" %>
 
 production:
   <<: *default
   url: <%= ENV["DATABASE_URL"] %>
-  database: <%= ENV.fetch("DB_NAME", "dayspring_ipl_prediction_production") %>
+  database: <%= ENV["DB_NAME"].presence || ENV["PGDATABASE"].presence || "dayspring_ipl_prediction_production" %>
