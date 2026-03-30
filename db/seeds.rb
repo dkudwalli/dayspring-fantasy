@@ -1,13 +1,17 @@
-allow_production_demo_seeds = ActiveModel::Type::Boolean.new.cast(ENV.fetch("ALLOW_PRODUCTION_DEMO_SEEDS", "false"))
+production_seed_marker = {
+  team_one: "Kolkata Knight Riders",
+  team_two: "Delhi Capitals",
+  starts_at: Time.zone.local(2026, 5, 24, 19, 30)
+}
 
-if Rails.env.production? && !allow_production_demo_seeds
-  puts "Skipping demo seeds in production. Set ALLOW_PRODUCTION_DEMO_SEEDS=true and provide SEED_ADMIN_PASSWORD/SEED_USER_PASSWORD to load them intentionally."
+if Rails.env.production? && Match.exists?(production_seed_marker)
+  puts "Production seed data already exists. Skipping."
 else
   seed_admin_password = ENV["SEED_ADMIN_PASSWORD"].presence
   seed_user_password = ENV["SEED_USER_PASSWORD"].presence
 
   if seed_admin_password.blank? || seed_user_password.blank?
-    abort "SEED_ADMIN_PASSWORD and SEED_USER_PASSWORD are required to load demo seeds."
+    abort "SEED_ADMIN_PASSWORD and SEED_USER_PASSWORD are required to load seed data."
   end
 
   PredictionSubmission.destroy_all
@@ -17,14 +21,14 @@ else
   User.destroy_all
 
   admin = User.create!(
-    email: "admin@dayspringlabs.com",
+    email: "dhishan@dayspringlabs.com",
     password: seed_admin_password,
     password_confirmation: seed_admin_password,
     admin: true
   )
 
   viewer = User.create!(
-    email: "fan@dayspring.tech",
+    email: "dhishan@dayspringlabs.com",
     password: seed_user_password,
     password_confirmation: seed_user_password
   )
