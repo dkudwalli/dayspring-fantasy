@@ -1,13 +1,13 @@
 <%= turbo_frame_tag "dashboard_metrics" do %>
   <% if user_signed_in? %>
-    <section class="page-surface space-y-5 p-6">
-      <div class="flex items-start justify-between gap-4">
+    <section class="page-surface space-y-5 p-5 sm:p-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p class="eyebrow">Your board</p>
           <h2 class="mt-2 font-editorial text-2xl text-slate-900">Locked in for <%= selected_date.strftime("%-d %b") %></h2>
           <p class="mt-2 text-sm leading-6 text-slate-500">Keep an eye on published results and update open questions before the first ball.</p>
         </div>
-        <span class="<%= pill_classes(tone: :dark) %>">Live picks</span>
+        <span class="<%= class_names(pill_classes(tone: :dark), 'self-start') %>">Live picks</span>
       </div>
 
       <div class="grid gap-3 sm:grid-cols-3">
@@ -25,19 +25,19 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-3">
-        <%= link_to "View your history", prediction_history_path, class: button_classes(variant: :secondary, size: :sm) %>
-        <%= link_to "See full leaderboard", leaderboards_path, class: button_classes(variant: :subtle, size: :sm) %>
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <%= link_to "View your history", prediction_history_path, class: class_names(button_classes(variant: :secondary, size: :sm), "w-full sm:w-auto") %>
+        <%= link_to "See full leaderboard", leaderboards_path, class: class_names(button_classes(variant: :subtle, size: :sm), "w-full sm:w-auto") %>
       </div>
     </section>
   <% else %>
-    <section class="page-surface-dark space-y-4 p-6">
+    <section class="page-surface-dark space-y-4 p-5 sm:p-6">
       <p class="eyebrow text-amber-300">Play today</p>
       <h2 class="font-editorial text-2xl">Sign in to save picks before lock.</h2>
       <p class="text-sm leading-6 text-slate-300">The board updates through the day, but only signed-in players can lock answers and climb the table.</p>
-      <div class="flex flex-wrap gap-3">
-        <%= link_to "Log in", new_session_path, class: button_classes(variant: :accent, size: :sm) %>
-        <%= link_to "Create account", new_registration_path, class: button_classes(variant: :secondary, size: :sm) %>
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <%= link_to "Log in", new_session_path, class: class_names(button_classes(variant: :accent, size: :sm), "w-full sm:w-auto") %>
+        <%= link_to "Create account", new_registration_path, class: class_names(button_classes(variant: :secondary, size: :sm), "w-full sm:w-auto") %>
       </div>
     </section>
   <% end %>

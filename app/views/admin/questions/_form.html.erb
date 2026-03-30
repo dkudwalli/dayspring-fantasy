@@ -27,7 +27,7 @@
   </section>
 
   <% if @question.new_record? %>
-    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
       <p class="eyebrow">Answer options</p>
       <h2 class="mt-2 font-editorial text-2xl text-slate-950">Initial options</h2>
       <p class="mt-2 text-sm leading-6 text-slate-500">Add one option per line in the order players should see them.</p>
@@ -38,7 +38,7 @@
       </div>
     </section>
   <% else %>
-    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
       <p class="eyebrow">Result control</p>
       <h2 class="mt-2 font-editorial text-2xl text-slate-950">Draft and publish the answer</h2>
       <p class="mt-2 text-sm leading-6 text-slate-500">Save a correct option as draft first. Publishing locks the question and immediately affects scoring.</p>
@@ -62,16 +62,16 @@
       </div>
     </section>
 
-    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
       <p class="eyebrow">Option maintenance</p>
       <h2 class="mt-2 font-editorial text-2xl text-slate-950">Edit existing options</h2>
 
       <div class="mt-5 space-y-4">
         <% @question.options.ordered.each do |option| %>
-          <div class="rounded-[1.5rem] border border-slate-200 bg-white p-5">
+          <div class="rounded-[1.5rem] border border-slate-200 bg-white p-4 sm:p-5">
             <%= hidden_field_tag "prediction_question[option_updates][#{option.id}][id]", option.id %>
 
-            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_10rem_10rem_auto] lg:items-end">
+            <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_10rem_10rem_auto] xl:items-end">
               <div>
                 <%= label_tag "prediction_question_option_#{option.id}_label", "Label", class: "field-label" %>
                 <%= text_field_tag "prediction_question[option_updates][#{option.id}][label]", option.label, class: field_classes %>
@@ -87,8 +87,8 @@
                 <span class="text-sm font-medium text-slate-700">Archived</span>
               </label>
 
-              <div class="lg:text-right">
-                <%= link_to "Delete", admin_match_question_option_path(@match, @question, option), data: { turbo_method: :delete, turbo_confirm: "Delete this option?" }, class: button_classes(variant: :subtle, size: :sm) %>
+              <div class="sm:col-span-2 xl:col-span-1 xl:text-right">
+                <%= link_to "Delete", admin_match_question_option_path(@match, @question, option), data: { turbo_method: :delete, turbo_confirm: "Delete this option?" }, class: class_names(button_classes(variant: :subtle, size: :sm), "w-full sm:w-auto") %>
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@
       </div>
     </section>
 
-    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
       <p class="eyebrow">Add more answers</p>
       <h2 class="mt-2 font-editorial text-2xl text-slate-950">Append new options</h2>
       <p class="mt-2 text-sm leading-6 text-slate-500">Enter one option per line. New options are added after the highest current position.</p>
@@ -108,8 +108,8 @@
     </section>
   <% end %>
 
-  <div class="flex flex-wrap gap-3 pt-2">
-    <%= form.submit(@question.persisted? ? "Save question" : "Create question", class: button_classes(variant: :primary, size: :md)) %>
-    <%= link_to "Back to match", edit_admin_match_path(@match), class: button_classes(variant: :secondary, size: :md) %>
+  <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+    <%= form.submit(@question.persisted? ? "Save question" : "Create question", class: class_names(button_classes(variant: :primary, size: :md), "w-full sm:w-auto")) %>
+    <%= link_to "Back to match", edit_admin_match_path(@match), class: class_names(button_classes(variant: :secondary, size: :md), "w-full sm:w-auto") %>
   </div>
 <% end %>

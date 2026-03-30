@@ -53,7 +53,7 @@ module ApplicationHelper
 
   def nav_link_classes(active: false)
     class_names(
-      "inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium transition",
+      "inline-flex w-full items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition sm:w-auto",
       active ?
         "border-white bg-white text-slate-950 shadow-lg shadow-slate-950/25" :
         "border-white/12 bg-white/5 text-slate-200 hover:border-white/25 hover:bg-white/10 hover:text-white"
@@ -62,7 +62,7 @@ module ApplicationHelper
 
   def admin_nav_link_classes(active: false)
     class_names(
-      "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition",
+      "inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition sm:w-auto",
       active ?
         "bg-amber-300 text-slate-950 shadow-lg shadow-amber-950/20" :
         "bg-white/6 text-slate-200 hover:bg-white/12 hover:text-white"

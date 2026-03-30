@@ -8,7 +8,7 @@
         data-flash-timeout-value="<%= type.to_s == 'notice' ? 4000 : 6000 %>"
         class="<%= flash_message_classes(type) %>"
       >
-        <div class="flex items-start justify-between gap-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] <%= type.to_s == 'notice' ? 'text-emerald-700' : 'text-rose-700' %>">
               <%= type.to_s == "notice" ? "Update saved" : "Action needed" %>
@@ -18,7 +18,7 @@
 
           <button
             type="button"
-            class="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-current transition hover:bg-black/5"
+            class="self-start rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-current transition hover:bg-black/5"
             data-action="flash#dismiss"
           >
             Dismiss

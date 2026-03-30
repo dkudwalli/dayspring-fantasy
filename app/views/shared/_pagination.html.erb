@@ -1,20 +1,20 @@
 <% if total_pages > 1 %>
-  <div class="mt-6 flex flex-col gap-3 rounded-[1.75rem] border border-slate-200 bg-white/92 px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+  <div class="mt-6 flex flex-col gap-3 rounded-[1.75rem] border border-slate-200 bg-white/92 px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
     <div>
       <% if previous_path.present? %>
-        <%= link_to "Previous", previous_path, class: button_classes(variant: :secondary, size: :sm) %>
+        <%= link_to "Previous", previous_path, class: class_names(button_classes(variant: :secondary, size: :sm), "w-full sm:w-auto") %>
       <% else %>
-        <span class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-400">Previous</span>
+        <span class="inline-flex w-full items-center justify-center rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-400 sm:w-auto">Previous</span>
       <% end %>
     </div>
 
-    <p class="text-sm text-slate-500">Page <%= page %> of <%= total_pages %></p>
+    <p class="text-center text-sm text-slate-500">Page <%= page %> of <%= total_pages %></p>
 
     <div class="sm:text-right">
       <% if next_path.present? %>
-        <%= link_to "Next", next_path, class: button_classes(variant: :secondary, size: :sm) %>
+        <%= link_to "Next", next_path, class: class_names(button_classes(variant: :secondary, size: :sm), "w-full sm:w-auto") %>
       <% else %>
-        <span class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-400">Next</span>
+        <span class="inline-flex w-full items-center justify-center rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-400 sm:w-auto">Next</span>
       <% end %>
     </div>
   </div>

@@ -15,45 +15,64 @@
 
   <body>
     <div class="relative isolate min-h-screen overflow-x-clip">
-      <header class="border-b border-white/10 bg-slate-950/80 backdrop-blur">
+      <header class="border-b border-white/10 bg-slate-950/80 backdrop-blur" data-controller="mobile-nav">
         <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="flex flex-col gap-6 py-6 lg:flex-row lg:items-end lg:justify-between">
-            <div class="space-y-3">
-              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-300/80">Dayspring fantasy league</p>
-              <div class="space-y-2">
-                <%= link_to root_path, class: "inline-block" do %>
-                  <span class="font-display text-4xl uppercase tracking-[0.08em] text-white sm:text-5xl">IPL Match Desk</span>
-                <% end %>
-                <p class="max-w-2xl text-sm leading-6 text-slate-300">
-                  Daily match picks, automatic locking, live scoring, and a cleaner admin workflow for league operations.
-                </p>
+          <div class="flex flex-col gap-5 py-5 sm:gap-6 sm:py-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="flex items-start justify-between gap-4 lg:max-w-2xl">
+              <div class="space-y-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-300/80">Dayspring fantasy league</p>
+                <div class="space-y-2">
+                  <%= link_to root_path, class: "inline-block", data: { action: "click->mobile-nav#close" } do %>
+                    <span class="font-display text-3xl uppercase tracking-[0.08em] text-white sm:text-5xl">IPL Match Desk</span>
+                  <% end %>
+                  <p class="max-w-2xl text-sm leading-6 text-slate-300">
+                    Daily match picks, automatic locking, live scoring, and a cleaner admin workflow for league operations.
+                  </p>
+                </div>
               </div>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/5 p-3 text-white transition hover:border-white/25 hover:bg-white/10 lg:hidden"
+                data-action="mobile-nav#toggle"
+                data-mobile-nav-target="button"
+                aria-expanded="false"
+                aria-controls="site-navigation"
+              >
+                <span class="sr-only">Toggle navigation</span>
+                <svg data-mobile-nav-target="openIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M3 5.75A.75.75 0 0 1 3.75 5h12.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 5.75Zm0 4.25a.75.75 0 0 1 .75-.75h12.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10Zm.75 3.25a.75.75 0 0 0 0 1.5h12.5a.75.75 0 0 0 0-1.5H3.75Z" clip-rule="evenodd" />
+                </svg>
+                <svg data-mobile-nav-target="closeIcon" xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M4.47 4.47a.75.75 0 0 1 1.06 0L10 8.94l4.47-4.47a.75.75 0 1 1 1.06 1.06L11.06 10l4.47 4.47a.75.75 0 0 1-1.06 1.06L10 11.06l-4.47 4.47a.75.75 0 0 1-1.06-1.06L8.94 10 4.47 5.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                </svg>
+              </button>
             </div>
 
-            <div class="flex flex-col gap-3 lg:items-end">
-              <nav class="flex flex-wrap gap-2">
+            <div id="site-navigation" class="hidden space-y-4 lg:block lg:min-w-[23rem]" data-mobile-nav-target="panel">
+              <nav class="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                 <% site_navigation_items.each do |item| %>
-                  <%= link_to item[:label], item[:path], class: nav_link_classes(active: item[:active]) %>
+                  <%= link_to item[:label], item[:path], class: nav_link_classes(active: item[:active]), data: { action: "click->mobile-nav#close" } %>
                 <% end %>
               </nav>
 
-              <div class="flex flex-wrap items-center gap-2">
+              <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
                 <% if user_signed_in? %>
-                  <span class="inline-flex items-center rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-slate-200">
-                    <span class="mr-2 hidden text-slate-400 sm:inline">Signed in as</span>
+                  <span class="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-slate-200 sm:w-auto">
+                    <span class="mr-2 hidden text-slate-400 lg:inline">Signed in as</span>
                     <span class="font-medium text-white"><%= current_user.email %></span>
                   </span>
-                  <%= button_to "Log out", session_path, method: :delete, class: button_classes(variant: :secondary, size: :sm), form_class: "inline-block" %>
+                  <%= button_to "Log out", session_path, method: :delete, class: class_names(button_classes(variant: :secondary, size: :sm), "w-full sm:w-auto"), form_class: "w-full sm:w-auto inline-block" %>
                 <% else %>
-                  <%= link_to "Log in", new_session_path, class: nav_link_classes(active: controller_name == "sessions") %>
-                  <%= link_to "Create account", new_registration_path, class: button_classes(variant: :accent, size: :sm) %>
+                  <%= link_to "Log in", new_session_path, class: nav_link_classes(active: controller_name == "sessions"), data: { action: "click->mobile-nav#close" } %>
+                  <%= link_to "Create account", new_registration_path, class: class_names(button_classes(variant: :accent, size: :sm), "w-full sm:w-auto"), data: { action: "click->mobile-nav#close" } %>
                 <% end %>
               </div>
             </div>
           </div>
 
           <% if current_user&.admin? %>
-            <div class="border-t border-white/10 py-4">
+            <div class="hidden border-t border-white/10 py-4 lg:block">
               <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Admin command deck</p>
@@ -62,10 +81,25 @@
 
                 <nav class="flex flex-wrap gap-2">
                   <% admin_navigation_items.each do |item| %>
-                    <%= link_to item[:label], item[:path], class: admin_nav_link_classes(active: item[:active]) %>
+                    <%= link_to item[:label], item[:path], class: admin_nav_link_classes(active: item[:active]), data: { action: "click->mobile-nav#close" } %>
                   <% end %>
                 </nav>
               </div>
+            </div>
+
+            <div class="hidden pb-4 lg:hidden" data-mobile-nav-target="panel">
+              <section class="rounded-[1.5rem] border border-white/10 bg-white/6 px-4 py-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Admin command deck</p>
+                  <p class="mt-1 text-sm leading-6 text-slate-300">Manage fixtures, questions, results, and audit trails.</p>
+                </div>
+
+                <nav class="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <% admin_navigation_items.each do |item| %>
+                    <%= link_to item[:label], item[:path], class: admin_nav_link_classes(active: item[:active]), data: { action: "click->mobile-nav#close" } %>
+                  <% end %>
+                </nav>
+              </section>
             </div>
           <% end %>
         </div>

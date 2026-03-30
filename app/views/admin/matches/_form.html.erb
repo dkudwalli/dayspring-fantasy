@@ -25,6 +25,6 @@
   </div>
 
   <div class="pt-2">
-    <%= form.submit(@match.persisted? ? "Save match" : "Create match", class: button_classes(variant: :primary, size: :md)) %>
+    <%= form.submit(@match.persisted? ? "Save match" : "Create match", class: class_names(button_classes(variant: :primary, size: :md), "w-full sm:w-auto")) %>
   </div>
 <% end %>
