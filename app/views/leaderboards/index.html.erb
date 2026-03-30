@@ -1,0 +1,41 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Points Table</p>
+      <h1>User rankings</h1>
+      <p class="muted">Admin accounts are excluded from the public leaderboard.</p>
+    </div>
+  </div>
+
+  <div class="leaderboard-table">
+    <div class="leaderboard-row leaderboard-head">
+      <span>Rank</span>
+      <span>User</span>
+      <span>Points</span>
+    </div>
+
+    <% @ranked_users.each do |user| %>
+      <div class="leaderboard-row">
+        <span>#<%= user.leaderboard_rank %></span>
+        <span><%= user.email %></span>
+        <span><%= user.score %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="pagination-row">
+    <% if @page > 1 %>
+      <%= link_to "Previous", leaderboards_path(page: @page - 1), class: "button button-secondary button-small" %>
+    <% else %>
+      <span class="muted">Previous</span>
+    <% end %>
+
+    <span class="muted">Page <%= @page %> of <%= @total_pages %></span>
+
+    <% if @page < @total_pages %>
+      <%= link_to "Next", leaderboards_path(page: @page + 1), class: "button button-secondary button-small" %>
+    <% else %>
+      <span class="muted">Next</span>
+    <% end %>
+  </div>
+</section>

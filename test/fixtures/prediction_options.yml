@@ -1,0 +1,29 @@
+open_team_one_option:
+  prediction_question: open_winner
+  label: Royal Challengers Bengaluru
+  position: 0
+
+open_team_two_option:
+  prediction_question: open_winner
+  label: Sunrisers Hyderabad
+  position: 1
+
+open_powerplay_team_one_option:
+  prediction_question: open_powerplay
+  label: Royal Challengers Bengaluru
+  position: 0
+
+open_powerplay_team_two_option:
+  prediction_question: open_powerplay
+  label: Sunrisers Hyderabad
+  position: 1
+
+locked_team_one_option:
+  prediction_question: locked_winner
+  label: Mumbai Indians
+  position: 0
+
+locked_team_two_option:
+  prediction_question: locked_winner
+  label: Chennai Super Kings
+  position: 1

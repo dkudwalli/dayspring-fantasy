@@ -1,0 +1,19 @@
+member_open_winner:
+  user: member
+  prediction_question: open_winner
+  prediction_option: open_team_one_option
+
+member_open_powerplay:
+  user: member
+  prediction_question: open_powerplay
+  prediction_option: open_powerplay_team_one_option
+
+member_locked_winner:
+  user: member
+  prediction_question: locked_winner
+  prediction_option: locked_team_one_option
+
+rival_locked_winner:
+  user: rival
+  prediction_question: locked_winner
+  prediction_option: locked_team_two_option

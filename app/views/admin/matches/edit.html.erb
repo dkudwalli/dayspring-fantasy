@@ -1,0 +1,57 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Edit match</h1>
+      <p class="muted"><%= @match.archived? ? "This match is archived." : "This match is active." %></p>
+    </div>
+    <div class="panel-actions">
+      <% if @match.archived? %>
+        <%= button_to "Restore match", restore_admin_match_path(@match), method: :patch, class: "button button-secondary" %>
+      <% else %>
+        <%= button_to "Archive match", archive_admin_match_path(@match), method: :patch, class: "button button-secondary" %>
+      <% end %>
+    </div>
+  </div>
+  <%= render "form" %>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Questions for <%= @match.name %></h2>
+    <%= link_to "Add question", new_admin_match_question_path(@match), class: "button button-secondary" %>
+  </div>
+
+  <% @match.prediction_questions.ordered.each do |question| %>
+    <article class="question-card">
+      <div class="question-head">
+        <div>
+          <h3><%= question.prompt %></h3>
+          <p class="muted">
+            <%= question.point_value %> point<%= "s" unless question.point_value == 1 %>
+            · <%= question.archived? ? "Archived" : "Active" %>
+            · <%= question.result_published? ? "Published" : "Unpublished" %>
+          </p>
+        </div>
+        <div class="inline-actions">
+          <%= link_to "Edit / Set result", edit_admin_match_question_path(@match, question), class: "button button-secondary" %>
+          <% if question.archived? %>
+            <%= button_to "Restore", restore_admin_match_question_path(@match, question), method: :patch, class: "button button-secondary button-small" %>
+          <% else %>
+            <%= button_to "Archive", archive_admin_match_question_path(@match, question), method: :patch, class: "button button-secondary button-small" %>
+          <% end %>
+        </div>
+      </div>
+      <div class="options-grid">
+        <% question.options.ordered.each do |option| %>
+          <span class="pill"><%= option.label %><%= option.archived? ? " · Archived" : "" %></span>
+        <% end %>
+      </div>
+      <p class="muted">
+        Result:
+        <strong><%= question.correct_option&.label || "Not set yet" %></strong>
+        <span>· <%= question.result_published? ? "Published" : "Draft" %></span>
+      </p>
+    </article>
+  <% end %>
+</section>

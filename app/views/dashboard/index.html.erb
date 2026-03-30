@@ -1,0 +1,232 @@
+<section class="dashboard-shell">
+  <aside class="dashboard-sidebar">
+    <section class="dashboard-panel dashboard-panel-soft">
+      <p class="eyebrow">Match Day</p>
+      <h1 class="sidebar-title"><%= @selected_date.strftime("%A, %-d %b %Y") %></h1>
+    </section>
+
+    <% if user_signed_in? %>
+      <section class="dashboard-panel dashboard-status-card">
+        <p class="status-badge status-badge-success">Picks Saved</p>
+        <h2>Your progress</h2>
+        <p class="muted">Locked in before match starts</p>
+
+        <div class="status-list">
+          <div class="status-item">
+            <span>Questions answered</span>
+            <strong><%= @answered_questions_count %></strong>
+          </div>
+          <div class="status-item">
+            <span>Today’s points</span>
+            <strong><%= @daily_points %></strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-panel score-card">
+        <p class="muted">Your score</p>
+        <div class="score-row">
+          <strong class="score-value"><%= current_user.score %></strong>
+          <span class="score-rank"><%= @current_user_rank ? "##{@current_user_rank}" : "Admin" %></span>
+        </div>
+      </section>
+    <% end %>
+
+    <section class="dashboard-panel dashboard-panel-soft">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Schedule</p>
+          <h2>Pick a day</h2>
+        </div>
+        <% if @total_schedule_pages.positive? %>
+          <div class="schedule-nav">
+            <% if @schedule_page > 1 %>
+              <%= link_to "←", root_path(date: @selected_date, page: @schedule_page - 1), class: "schedule-arrow" %>
+            <% else %>
+              <span class="schedule-arrow schedule-arrow-disabled">←</span>
+            <% end %>
+            <% if @schedule_page < @total_schedule_pages %>
+              <%= link_to "→", root_path(date: @selected_date, page: @schedule_page + 1), class: "schedule-arrow" %>
+            <% else %>
+              <span class="schedule-arrow schedule-arrow-disabled">→</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <% if @visible_dates.any? %>
+        <div class="schedule-stack">
+          <% @visible_dates.each do |date| %>
+            <% day_classes = ["schedule-day"] %>
+            <% day_classes << "schedule-day-active" if date == @selected_date %>
+            <%= link_to root_path(date: date, page: @schedule_page), class: day_classes.join(" ") do %>
+              <span><%= date.strftime("%a") %></span>
+              <strong><%= date.strftime("%d") %></strong>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="muted schedule-empty-copy">No scheduled match dates available yet.</p>
+      <% end %>
+    </section>
+  </aside>
+
+  <section class="dashboard-main">
+    <section class="dashboard-hero">
+      <div>
+        <p class="eyebrow">Today’s Matches</p>
+        <h2 class="dashboard-hero-title"><%= @selected_date.strftime("%A, %-d %B %Y") %></h2>
+      </div>
+      <% if user_signed_in? %>
+        <span class="status-badge status-badge-success">Picks Saved</span>
+      <% end %>
+    </section>
+
+    <% if @matches.empty? %>
+      <article class="dashboard-panel empty-state">
+        <h2>No matches on <%= @selected_date.strftime("%d %b %Y") %></h2>
+        <p>Add a match from the admin area and it will show up here.</p>
+      </article>
+    <% end %>
+
+    <% @matches.each do |match| %>
+      <% questions = match.active_prediction_questions.to_a %>
+      <% open_questions = questions.select(&:open_for_predictions?) %>
+      <% results_announced = questions.any?(&:result_published?) %>
+      <article class="dashboard-panel match-stage">
+        <div class="match-stage-top">
+          <span class="venue-chip"><%= match.venue.presence || "IPL Venue" %></span>
+          <div class="match-stage-meta">
+            <span><%= format_india_time(match.starts_at, "%-I:%M %p") %></span>
+            <% if match.locked? %>
+              <span class="status-text status-text-locked">Locked</span>
+            <% else %>
+              <span class="status-text status-text-open">Open</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="stage-scoreboard">
+          <div class="stage-team">
+            <%= team_logo(match.team_one) %>
+            <strong><%= match.team_one %></strong>
+            <% left_prediction = @predictions_by_question_id[questions.first&.id] %>
+            <% if left_prediction&.prediction_option&.label == match.team_one %>
+              <span class="your-pick-chip">Your pick</span>
+            <% end %>
+          </div>
+
+          <div class="stage-center">
+            <span class="versus-disc">VS</span>
+            <span class="versus-sub">T20</span>
+          </div>
+
+          <div class="stage-team stage-team-right">
+            <%= team_logo(match.team_two) %>
+            <strong><%= match.team_two %></strong>
+            <% if left_prediction&.prediction_option&.label == match.team_two %>
+              <span class="your-pick-chip">Your pick</span>
+            <% end %>
+          </div>
+        </div>
+
+        <% if results_announced && open_questions.empty? %>
+          <div class="match-banner">
+            <p class="form-alert">Results have been announced for this match. Picks can no longer be edited.</p>
+          </div>
+        <% elsif results_announced %>
+          <div class="match-banner">
+            <p class="form-note">Some results have been published for this match. Only the remaining open questions can still be edited.</p>
+          </div>
+        <% elsif match.locked? %>
+          <div class="match-banner">
+            <p class="form-alert">This match is locked. Picks can no longer be submitted.</p>
+          </div>
+        <% end %>
+
+        <% if user_signed_in? && questions.any? %>
+          <%= form_with url: predictions_path, scope: :prediction, data: { controller: "prediction-form", prediction_form_locked_value: open_questions.empty? } do |form| %>
+            <%= form.hidden_field :match_id, value: match.id %>
+            <% all_answered = open_questions.all? { |question| @predictions_by_question_id[question.id].present? } %>
+
+            <div class="question-grid">
+              <% questions.each do |question| %>
+                <% question_locked = !question.open_for_predictions? %>
+                <% prediction = @predictions_by_question_id[question.id] %>
+                <section class="question-stage">
+                  <div class="question-stage-head">
+                    <div>
+                      <p class="muted"><%= question.prompt %></p>
+                      <% if prediction.present? && !question.result_published? %>
+                        <span class="your-pick-chip">Saved: <%= prediction.prediction_option.label %></span>
+                      <% end %>
+                    </div>
+                    <% if question.result_published? %>
+                      <div class="question-result-stack">
+                        <span class="pill result-pill">Correct: <%= question.correct_option.label %></span>
+                        <% if prediction.present? %>
+                          <span class="pill saved-pill">Your pick: <%= prediction.prediction_option.label %> · <%= prediction.earned_points %> pts</span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <% if question_locked %>
+                    <% if !question.result_published? && prediction.present? %>
+                      <span class="pill saved-pill">Saved: <%= prediction.prediction_option.label %></span>
+                    <% end %>
+                  <% else %>
+                    <div class="options-grid">
+                      <% question.active_options.each do |option| %>
+                        <label class="option-tile option-tile-sport <%= "option-selected" if prediction&.prediction_option_id == option.id %>">
+                          <%= radio_button_tag "prediction[answers][#{question.id}]", option.id, prediction&.prediction_option_id == option.id, required: true, data: { action: "change->prediction-form#refresh" } %>
+                          <span><%= option.label %></span>
+                        </label>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </section>
+              <% end %>
+            </div>
+
+            <% if open_questions.any? %>
+              <div class="submit-wrap">
+                <% if all_answered %>
+                  <p class="form-note" data-prediction-form-target="message">All questions answered. You can save or update your picks.</p>
+                  <%= form.submit "Update picks", class: "button button-primary", data: { prediction_form_target: "submit" } %>
+                <% else %>
+                  <p class="form-alert" data-prediction-form-target="message">Select one option for every question to enable saving.</p>
+                  <%= form.submit "Save all picks", class: "button button-primary", disabled: true, data: { prediction_form_target: "submit" } %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="submit-wrap">
+                <p class="form-note">No questions are currently open for editing on this match.</p>
+              </div>
+            <% end %>
+          <% end %>
+        <% elsif questions.empty? %>
+          <div class="match-banner">
+            <p class="form-alert">No active prediction questions are available for this match.</p>
+          </div>
+        <% end %>
+      </article>
+    <% end %>
+
+    <section class="dashboard-panel leaderboard-strip">
+      <div>
+        <h3>Leaderboard</h3>
+        <p class="muted">Updated after each match</p>
+      </div>
+
+      <div class="leaderboard-strip-items">
+        <% @ranked_users.each do |user| %>
+          <span class="leader-strip-pill"><%= user.email.split("@").first %> · <strong><%= user.score %> pts</strong></span>
+        <% end %>
+        <%= link_to "Full table", leaderboards_path, class: "button button-secondary" %>
+        <% if user_signed_in? %>
+          <%= link_to "Your history", prediction_history_path, class: "button button-secondary" %>
+        <% end %>
+      </div>
+    </section>
+  </section>
+</section>

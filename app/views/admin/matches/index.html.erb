@@ -1,0 +1,42 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Matches</h1>
+      <p class="muted">Archive old matches, restore them later, or bulk import a schedule CSV.</p>
+    </div>
+    <div class="panel-actions">
+      <%= link_to "View logs", admin_prediction_submissions_path, class: "button button-secondary" %>
+      <%= link_to "Add match", new_admin_match_path, class: "button button-primary" %>
+    </div>
+  </div>
+
+  <section class="panel panel-soft">
+    <p class="eyebrow">Import</p>
+    <%= form_with url: import_admin_matches_path, multipart: true, class: "stack-form" do |form| %>
+      <div>
+        <%= form.label :schedule_csv, "Schedule CSV" %>
+        <%= form.file_field :schedule_csv, name: :schedule_csv, accept: ".csv", class: "text-input" %>
+      </div>
+      <p class="muted">Expected headers: <code>team_one,team_two,venue,starts_at</code></p>
+      <%= form.submit "Import schedule", class: "button button-secondary" %>
+    <% end %>
+  </section>
+
+  <div class="leaderboard-table">
+    <% @matches.each do |match| %>
+      <div class="leaderboard-row">
+        <span><%= format_india_time(match.starts_at, "%d %b, %I:%M %p") %></span>
+        <span><%= match.name %> <%= match.archived? ? "· Archived" : "" %></span>
+        <span class="inline-actions">
+          <%= link_to "Edit", edit_admin_match_path(match) %>
+          <% if match.archived? %>
+            <%= button_to "Restore", restore_admin_match_path(match), method: :patch, class: "button button-secondary button-small" %>
+          <% else %>
+            <%= button_to "Archive", archive_admin_match_path(match), method: :patch, class: "button button-secondary button-small" %>
+          <% end %>
+        </span>
+      </div>
+    <% end %>
+  </div>
+</section>

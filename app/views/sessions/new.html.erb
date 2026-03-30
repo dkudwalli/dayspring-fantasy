@@ -1,0 +1,21 @@
+<section class="auth-card">
+  <p class="eyebrow">Login</p>
+  <h1>Welcome back</h1>
+
+  <%= form_with url: session_path, class: "stack-form" do |form| %>
+    <div>
+      <%= label_tag :email %>
+      <%= email_field_tag :email, params[:email], required: true, class: "text-input" %>
+    </div>
+
+    <div>
+      <%= label_tag :password %>
+      <%= password_field_tag :password, nil, required: true, class: "text-input" %>
+    </div>
+
+    <div class="auth-actions">
+      <%= form.submit "Login", class: "button button-primary" %>
+      <%= link_to "Forgot password?", new_password_reset_path, class: "nav-link" %>
+    </div>
+  <% end %>
+</section>

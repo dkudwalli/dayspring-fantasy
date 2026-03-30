@@ -1,0 +1,76 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Activity Logs</h1>
+      <p class="muted">Append-only audit history for admin content changes.</p>
+    </div>
+    <div class="panel-actions">
+      <%= link_to "Prediction logs", admin_prediction_submissions_path, class: "button button-secondary" %>
+      <%= link_to "Matches", admin_root_path, class: "button button-secondary" %>
+    </div>
+  </div>
+
+  <%= form_with url: admin_activity_logs_path, method: :get, class: "filter-form" do |form| %>
+    <div>
+      <%= form.label :admin, "Admin email" %>
+      <%= form.text_field :admin, value: params[:admin], class: "text-input" %>
+    </div>
+    <div>
+      <%= form.label :log_action, "Action" %>
+      <%= form.select :log_action, options_for_select(AdminAuditLog.distinct.order(:action).pluck(:action), params[:log_action]), { include_blank: "All actions" }, class: "text-input" %>
+    </div>
+    <div>
+      <%= form.label :entity_type, "Entity" %>
+      <%= form.select :entity_type, options_for_select(AdminAuditLog.distinct.order(:auditable_type).pluck(:auditable_type), params[:entity_type]), { include_blank: "All entities" }, class: "text-input" %>
+    </div>
+    <div>
+      <%= form.label :date_from, "From" %>
+      <%= form.date_field :date_from, value: params[:date_from], class: "text-input" %>
+    </div>
+    <div>
+      <%= form.label :date_to, "To" %>
+      <%= form.date_field :date_to, value: params[:date_to], class: "text-input" %>
+    </div>
+    <div class="panel-actions">
+      <%= form.submit "Filter", class: "button button-primary" %>
+      <%= link_to "Reset", admin_activity_logs_path, class: "button button-secondary" %>
+    </div>
+  <% end %>
+
+  <div class="leaderboard-table">
+    <div class="leaderboard-row leaderboard-head">
+      <span>When</span>
+      <span>Admin</span>
+      <span>Action</span>
+      <span>Entity</span>
+      <span>Details</span>
+    </div>
+
+    <% @activity_logs.each do |log| %>
+      <div class="leaderboard-row admin-log-row">
+        <span><%= format_india_time(log.created_at, "%d %b %Y, %I:%M %p") %></span>
+        <span><%= log.admin_user.email %></span>
+        <span><%= log.action %></span>
+        <span><%= [log.auditable_type, log.auditable_id].compact.join("#") %></span>
+        <span><%= truncate(log.metadata.to_json, length: 140) %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="pagination-row">
+    <% if @page > 1 %>
+      <%= link_to "Previous", admin_activity_logs_path(request.query_parameters.merge(page: @page - 1)), class: "button button-secondary button-small" %>
+    <% else %>
+      <span class="muted">Previous</span>
+    <% end %>
+
+    <span class="muted">Page <%= @page %> of <%= @total_pages %></span>
+
+    <% if @page < @total_pages %>
+      <%= link_to "Next", admin_activity_logs_path(request.query_parameters.merge(page: @page + 1)), class: "button button-secondary button-small" %>
+    <% else %>
+      <span class="muted">Next</span>
+    <% end %>
+  </div>
+</section>

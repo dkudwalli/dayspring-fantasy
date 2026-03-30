@@ -1,0 +1,11 @@
+open_match:
+  team_one: Royal Challengers Bengaluru
+  team_two: Sunrisers Hyderabad
+  venue: Bengaluru
+  starts_at: <%= Time.zone.parse("2026-04-10 19:30:00 +05:30") %>
+
+locked_match:
+  team_one: Mumbai Indians
+  team_two: Chennai Super Kings
+  venue: Mumbai
+  starts_at: <%= Time.zone.parse("2026-04-05 19:30:00 +05:30") %>

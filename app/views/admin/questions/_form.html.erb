@@ -1,0 +1,71 @@
+<% if @question.errors.any? %>
+  <div class="error-box"><%= @question.errors.full_messages.to_sentence %></div>
+<% end %>
+
+<%= form_with model: @question, url: (@question.persisted? ? admin_match_question_path(@match, @question) : admin_match_questions_path(@match)), class: "stack-form" do |form| %>
+  <div>
+    <%= form.label :prompt %>
+    <%= form.text_field :prompt, class: "text-input", required: true %>
+  </div>
+
+  <div>
+    <%= form.label :point_value %>
+    <%= form.number_field :point_value, class: "text-input", min: 1, required: true %>
+  </div>
+
+  <% if @question.new_record? %>
+    <div>
+      <%= label_tag :option_labels, "Options (one per line)" %>
+      <%= text_area_tag "prediction_question[option_labels]", nil, class: "text-input textarea-input", required: true %>
+    </div>
+  <% else %>
+    <div class="panel">
+      <p class="eyebrow">Result</p>
+      <p class="muted">Save a draft answer first, then explicitly publish it when you want scoring and locking to take effect.</p>
+
+      <div>
+        <%= form.label :correct_option_id, "Correct option" %>
+        <%= form.collection_select :correct_option_id, @question.options, :id, :label, { include_blank: "Not decided yet" }, class: "text-input" %>
+      </div>
+
+      <div>
+        <%= check_box_tag "prediction_question[publish_result]", "1", @question.result_published? %>
+        <%= label_tag "prediction_question_publish_result", "Publish result and lock this question" %>
+      </div>
+    </div>
+
+    <div>
+      <p class="eyebrow">Options</p>
+    </div>
+
+    <div class="stack-form">
+      <% @question.options.ordered.each do |option| %>
+        <div class="option-editor">
+          <%= hidden_field_tag "prediction_question[option_updates][#{option.id}][id]", option.id %>
+          <div>
+            <%= label_tag "prediction_question_option_#{option.id}_label", "Label" %>
+            <%= text_field_tag "prediction_question[option_updates][#{option.id}][label]", option.label, class: "text-input" %>
+          </div>
+          <div>
+            <%= label_tag "prediction_question_option_#{option.id}_position", "Position" %>
+            <%= number_field_tag "prediction_question[option_updates][#{option.id}][position]", option.position, class: "text-input", min: 0 %>
+          </div>
+          <div class="option-editor-check">
+            <%= check_box_tag "prediction_question[option_updates][#{option.id}][archived]", "1", option.archived? %>
+            <%= label_tag "prediction_question_option_#{option.id}_archived", "Archived" %>
+          </div>
+          <div class="option-editor-actions">
+            <%= link_to "Delete", admin_match_question_option_path(@match, @question, option), data: { turbo_method: :delete, turbo_confirm: "Delete this option?" }, class: "button button-secondary button-small" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div>
+      <%= label_tag :new_option_labels, "Add new options (one per line)" %>
+      <%= text_area_tag "prediction_question[new_option_labels]", nil, class: "text-input textarea-input" %>
+    </div>
+  <% end %>
+
+  <%= form.submit(@question.persisted? ? "Save question" : "Create question", class: "button button-primary") %>
+<% end %>

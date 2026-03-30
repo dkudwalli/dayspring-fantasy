@@ -1,0 +1,20 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV["DB_HOST"] %>
+  port: <%= ENV.fetch("DB_PORT", 5432) %>
+  username: <%= ENV.fetch("DB_USERNAME", ENV.fetch("USER", "postgres")) %>
+  password: <%= ENV["DB_PASSWORD"] %>
+
+development:
+  <<: *default
+  database: <%= ENV.fetch("DB_NAME", "dayspring_ipl_prediction_development") %>
+
+test:
+  <<: *default
+  database: <%= ENV.fetch("DB_TEST_NAME", "dayspring_ipl_prediction_test") %>
+
+production:
+  <<: *default
+  database: <%= ENV.fetch("DB_NAME", "dayspring_ipl_prediction_production") %>

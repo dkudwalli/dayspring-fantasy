@@ -1,0 +1,72 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">History</p>
+      <h1>Your picks and results</h1>
+      <p class="muted">Track every match, your saved picks, and the points you earned after results are published.</p>
+    </div>
+    <%= link_to "Back to dashboard", root_path, class: "button button-secondary" %>
+  </div>
+
+  <% if @predictions_by_match.empty? %>
+    <p class="muted">You have not submitted any predictions yet.</p>
+  <% end %>
+
+  <div class="history-stack">
+    <% @predictions_by_match.each do |match, predictions| %>
+      <% status = if predictions.any? { |prediction| prediction.prediction_question.result_published? }
+                    "graded"
+                  elsif match.locked?
+                    "locked"
+                  else
+                    "open"
+                  end %>
+      <% match_points = @match_points_by_id.fetch(match.id, 0) %>
+      <article class="question-card">
+        <div class="question-head">
+          <div>
+            <p class="eyebrow"><%= format_india_time(match.starts_at, "%d %b %Y, %I:%M %p") %></p>
+            <h2><%= match.name %></h2>
+            <p class="muted"><%= match.venue.presence || "IPL Venue" %></p>
+          </div>
+          <div class="history-meta">
+            <span class="pill"><%= status.capitalize %></span>
+            <span class="pill"><%= match_points %> pts</span>
+          </div>
+        </div>
+
+        <% predictions.each do |prediction| %>
+          <% question = prediction.prediction_question %>
+          <div class="history-row">
+            <div>
+              <strong><%= question.prompt %></strong>
+              <p class="muted">
+                Your pick: <%= prediction.prediction_option.label %>
+                <% if question.result_published? %>
+                  · Correct: <%= question.correct_option.label %>
+                <% end %>
+              </p>
+            </div>
+            <span class="pill"><%= prediction.earned_points %> pts</span>
+          </div>
+        <% end %>
+      </article>
+    <% end %>
+  </div>
+
+  <div class="pagination-row">
+    <% if @page > 1 %>
+      <%= link_to "Previous", prediction_history_path(page: @page - 1), class: "button button-secondary button-small" %>
+    <% else %>
+      <span class="muted">Previous</span>
+    <% end %>
+
+    <span class="muted">Page <%= @page %> of <%= @total_pages %></span>
+
+    <% if @page < @total_pages %>
+      <%= link_to "Next", prediction_history_path(page: @page + 1), class: "button button-secondary button-small" %>
+    <% else %>
+      <span class="muted">Next</span>
+    <% end %>
+  </div>
+</section>

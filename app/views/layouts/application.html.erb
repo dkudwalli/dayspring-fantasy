@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dayspring IPL Prediction</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <%= link_to "Dayspring IPL Prediction", root_path, class: "brand" %>
+        <p class="tagline">Daily match picks, automatic locking, and a live leaderboard.</p>
+      </div>
+      <nav class="topnav">
+        <div class="nav-links">
+          <%= link_to "Home", root_path, class: "nav-link" %>
+          <%= link_to "Leaderboard", leaderboards_path, class: "nav-link" %>
+          <% if user_signed_in? %>
+            <%= link_to "History", prediction_history_path, class: "nav-link" %>
+          <% end %>
+          <% if current_user&.admin? %>
+            <%= link_to "Admin", admin_root_path, class: "nav-link" %>
+            <%= link_to "Logs", admin_prediction_submissions_path, class: "nav-link" %>
+            <%= link_to "Activity", admin_activity_logs_path, class: "nav-link" %>
+          <% end %>
+        </div>
+        <div class="nav-account">
+          <% if user_signed_in? %>
+            <span class="user-badge"><%= current_user.email %></span>
+            <%= button_to "Logout", session_path, method: :delete, class: "nav-button" %>
+          <% else %>
+            <%= link_to "Login", new_session_path, class: "nav-link" %>
+            <%= link_to "Signup", new_registration_path, class: "nav-accent button" %>
+          <% end %>
+        </div>
+      </nav>
+    </header>
+
+    <% if flash[:notice] %>
+      <p class="flash flash-notice"><%= flash[:notice] %></p>
+    <% end %>
+    <% if flash[:alert] %>
+      <p class="flash flash-alert"><%= flash[:alert] %></p>
+    <% end %>
+
+    <main class="page-wrap">
+      <%= yield %>
+    </main>
+  </body>
+</html>

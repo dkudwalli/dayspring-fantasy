@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      RAILS_ENV: test
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: dayspring_ipl_prediction_development
+      DB_TEST_NAME: dayspring_ipl_prediction_test
+      SEED_ADMIN_PASSWORD: password123
+      SEED_USER_PASSWORD: password123
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Verify autoloading
+        run: bin/rails zeitwerk:check
+
+      - name: Seed smoke test
+        env:
+          RAILS_ENV: development
+        run: bin/rails db:drop db:create db:migrate db:seed
+
+      - name: Prepare test database
+        run: bin/rails db:prepare
+
+      - name: Run test suite
+        run: bin/rails test
+
+      - name: Run system tests
+        run: bin/rails test:system

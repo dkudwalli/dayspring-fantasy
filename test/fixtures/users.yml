@@ -1,0 +1,16 @@
+# Valid test users for auth, leaderboard, and admin flows.
+
+member:
+  email: member@dayspringlabs.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  admin: false
+
+rival:
+  email: rival@dayspring.tech
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  admin: false
+
+admin_user:
+  email: admin@dayspringlabs.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  admin: true

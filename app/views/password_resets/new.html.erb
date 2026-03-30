@@ -1,0 +1,14 @@
+<section class="auth-card">
+  <p class="eyebrow">Password reset</p>
+  <h1>Reset your password</h1>
+  <p class="muted">Enter your work email and we will send you a reset link if an account exists.</p>
+
+  <%= form_with url: password_resets_path, class: "stack-form" do |form| %>
+    <div>
+      <%= form.label :email %>
+      <%= form.email_field :email, required: true, class: "text-input" %>
+    </div>
+
+    <%= form.submit "Send reset link", class: "button button-primary" %>
+  <% end %>
+</section>
