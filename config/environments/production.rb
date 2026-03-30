@@ -72,22 +72,29 @@ Rails.application.configure do
 
   config.active_job.queue_adapter = :solid_queue
 
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_url_options = {
-    host: ENV.fetch("APP_HOST"),
-    protocol: ENV.fetch("APP_PROTOCOL", "https")
-  }
+  app_host = ENV["APP_HOST"].presence || ENV["RAILWAY_PUBLIC_DOMAIN"].presence
+  app_protocol = ENV.fetch("APP_PROTOCOL", "https")
+
   config.action_mailer.perform_caching = false
   config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.smtp_settings = {
-    address: ENV.fetch("SMTP_ADDRESS"),
-    port: ENV.fetch("SMTP_PORT", 587),
-    user_name: ENV.fetch("SMTP_USERNAME"),
-    password: ENV.fetch("SMTP_PASSWORD"),
-    domain: ENV.fetch("SMTP_DOMAIN", ENV.fetch("APP_HOST")),
-    authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain").to_sym,
-    enable_starttls_auto: ActiveModel::Type::Boolean.new.cast(ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true"))
-  }
+  config.action_mailer.default_url_options = { protocol: app_protocol }
+  config.action_mailer.default_url_options[:host] = app_host if app_host.present?
+
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV.fetch("SMTP_ADDRESS"),
+      port: ENV.fetch("SMTP_PORT", 587),
+      user_name: ENV["SMTP_USERNAME"],
+      password: ENV["SMTP_PASSWORD"],
+      domain: ENV["SMTP_DOMAIN"].presence || app_host || "localhost",
+      authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain").to_sym,
+      enable_starttls_auto: ActiveModel::Type::Boolean.new.cast(ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true"))
+    }
+  else
+    config.action_mailer.delivery_method = :file
+    config.action_mailer.file_settings = { location: Rails.root.join("tmp/mails") }
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -101,6 +108,16 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  config.after_initialize do
+    if Rails.application.config.action_mailer.default_url_options[:host].blank?
+      Rails.logger.warn("Action Mailer host is not configured. Set APP_HOST or enable Railway public networking so RAILWAY_PUBLIC_DOMAIN is available before sending emails.")
+    end
+
+    if Rails.application.config.action_mailer.delivery_method == :file
+      Rails.logger.warn("SMTP_ADDRESS is not configured. Emails will be written to tmp/mails until SMTP settings are provided.")
+    end
+  end
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [

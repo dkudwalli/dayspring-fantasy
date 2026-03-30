@@ -78,6 +78,12 @@ export SENTRY_TRACES_SAMPLE_RATE=0
 export JOB_CONCURRENCY=1
 ```
 
+Notes:
+
+- On Railway, `APP_HOST` is optional if the service has public networking enabled and `RAILWAY_PUBLIC_DOMAIN` is available.
+- On Railway Postgres, `DATABASE_URL` is supported directly.
+- If you run only one Railway service, set `SOLID_QUEUE_IN_PUMA=1` to run jobs in the web process. Otherwise deploy a separate worker that runs `bin/jobs`.
+
 Run both the web process and the Solid Queue worker process in production:
 
 ```bash

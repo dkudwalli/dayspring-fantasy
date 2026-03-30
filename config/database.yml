@@ -17,4 +17,5 @@ test:
 
 production:
   <<: *default
+  url: <%= ENV["DATABASE_URL"] %>
   database: <%= ENV.fetch("DB_NAME", "dayspring_ipl_prediction_production") %>
