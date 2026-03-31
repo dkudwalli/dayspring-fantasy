@@ -143,7 +143,7 @@ The repository now includes:
 `db/seeds.rb` creates these users:
 
 - `dhishan@dayspringlabs.com` with the password from `SEED_ADMIN_PASSWORD` and admin access
-- `dhishan@dayspringlabs.com` with the password from `SEED_USER_PASSWORD`
+- `joyce@dayspringlabs.com` with the password from `SEED_USER_PASSWORD`
 
 ## Main screens
 

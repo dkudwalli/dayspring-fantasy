@@ -5,7 +5,7 @@ production_seed_marker = {
 }
 
 seed_admin_email = "dhishan@dayspringlabs.com"
-seed_player_email = "dhishan@dayspringlabs.com"
+seed_player_email = "joyce@dayspringlabs.com"
 
 if Rails.env.production? && Match.exists?(production_seed_marker)
   puts "Production seed data already exists. Skipping."
