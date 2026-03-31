@@ -488,3 +488,4 @@ fixtures = [
   puts "Created admin login: #{admin.email}"
   puts "Created player login: #{player.email}"
 end
+
